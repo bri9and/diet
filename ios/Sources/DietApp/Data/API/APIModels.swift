@@ -243,3 +243,39 @@ public struct CreateFoodSnapshot: Encodable {
         self.servingDescription = servingDescription
     }
 }
+
+// MARK: - Photo Analysis
+
+public struct PhotoAnalysisRequest: Encodable {
+    public let image: String  // Base64 encoded
+    public let mimeType: String
+
+    public init(image: String, mimeType: String = "image/jpeg") {
+        self.image = image
+        self.mimeType = mimeType
+    }
+}
+
+public struct PhotoAnalysisResponse: Decodable {
+    public let success: Bool
+    public let provider: String
+    public let confidence: Double
+    public let items: [AnalyzedFoodItem]
+}
+
+public struct AnalyzedFoodItem: Decodable, Identifiable {
+    public let name: String
+    public let quantity: Double
+    public let unit: String
+    public let nutrition: AnalyzedNutrition
+    public let confidence: Double
+
+    public var id: String { "\(name)-\(quantity)-\(unit)" }
+}
+
+public struct AnalyzedNutrition: Decodable {
+    public let calories: Double
+    public let proteinG: Double
+    public let carbsG: Double
+    public let fatG: Double
+}

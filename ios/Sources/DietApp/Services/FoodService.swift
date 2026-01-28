@@ -66,6 +66,15 @@ public final class FoodService {
         )
     }
 
+    // MARK: - Photo Analysis
+
+    /// Analyze a food photo using AI
+    public func analyzePhoto(imageData: Data) async throws -> PhotoAnalysisResponse {
+        let base64Image = imageData.base64EncodedString()
+        let request = PhotoAnalysisRequest(image: base64Image, mimeType: "image/jpeg")
+        return try await apiClient.post("/analyze-photo", body: request)
+    }
+
     // MARK: - Helpers
 
     private func formatDate(_ date: Date) -> String {

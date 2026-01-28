@@ -9,7 +9,12 @@ public struct AddFoodView: View {
     // MARK: - Properties
 
     @StateObject private var viewModel: AddFoodViewModel
+    @EnvironmentObject private var environment: AppEnvironment
     @Environment(\.dismiss) private var dismiss
+
+    @State private var showCamera = false
+    @State private var showPhotoReview = false
+    @State private var capturedPhotoData: Data?
 
     let mealType: FoodLogRecord.MealType
     let onFoodAdded: () -> Void
@@ -31,6 +36,9 @@ public struct AddFoodView: View {
     public var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
+                // Quick actions
+                quickActionsBar
+
                 // Search bar
                 searchBar
 
@@ -57,7 +65,87 @@ public struct AddFoodView: View {
             } message: {
                 Text(viewModel.errorMessage ?? "An error occurred")
             }
+            #if os(iOS)
+            .fullScreenCover(isPresented: $showCamera) {
+                CameraView { photoData in
+                    capturedPhotoData = photoData
+                    showPhotoReview = true
+                }
+            }
+            #endif
+            .sheet(isPresented: $showPhotoReview) {
+                if let photoData = capturedPhotoData {
+                    PhotoReviewView(
+                        imageData: photoData,
+                        mealType: mealType,
+                        foodService: environment.foodService
+                    ) {
+                        onFoodAdded()
+                        dismiss()
+                    }
+                }
+            }
         }
+    }
+
+    // MARK: - Quick Actions Bar
+
+    private var quickActionsBar: some View {
+        HStack(spacing: 16) {
+            #if os(iOS)
+            // Camera button
+            Button {
+                showCamera = true
+            } label: {
+                VStack(spacing: 4) {
+                    Image(systemName: "camera.fill")
+                        .font(.title2)
+                    Text("Photo")
+                        .font(.caption)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(Color.searchBarBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+            .buttonStyle(.plain)
+            #endif
+
+            // Barcode button
+            Button {
+                // TODO: Barcode scanner
+            } label: {
+                VStack(spacing: 4) {
+                    Image(systemName: "barcode.viewfinder")
+                        .font(.title2)
+                    Text("Barcode")
+                        .font(.caption)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(Color.searchBarBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+            .buttonStyle(.plain)
+
+            // Voice button
+            Button {
+                // TODO: Voice input
+            } label: {
+                VStack(spacing: 4) {
+                    Image(systemName: "mic.fill")
+                        .font(.title2)
+                    Text("Voice")
+                        .font(.caption)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(Color.searchBarBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+            .buttonStyle(.plain)
+        }
+        .padding()
     }
 
     // MARK: - Search Bar
