@@ -82,35 +82,106 @@ public struct ContentView: View {
     // MARK: - Sign In Prompt
 
     private var signInPromptView: some View {
-        VStack(spacing: 32) {
-            Spacer()
+        ZStack {
+            // Background gradient
+            LinearGradient(
+                colors: [
+                    Color.green.opacity(0.1),
+                    Color.green.opacity(0.05),
+                    Color.clear
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
 
-            Image(systemName: "leaf.circle.fill")
-                .font(.system(size: 80))
-                .foregroundColor(.green)
+            VStack(spacing: 0) {
+                Spacer()
 
-            VStack(spacing: 12) {
-                Text("Diet App")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
+                // Logo and branding
+                VStack(spacing: 20) {
+                    ZStack {
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [.green, .green.opacity(0.7)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(width: 120, height: 120)
+                            .shadow(color: .green.opacity(0.3), radius: 20, y: 10)
 
-                Text("Track your nutrition, reach your goals")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                        Image(systemName: "leaf.fill")
+                            .font(.system(size: 50))
+                            .foregroundColor(.white)
+                    }
+
+                    VStack(spacing: 8) {
+                        Text("Diet App")
+                            .font(.system(size: 36, weight: .bold, design: .rounded))
+
+                        Text("Your personal nutrition companion")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                }
+
+                Spacer()
+
+                // Features
+                VStack(spacing: 16) {
+                    FeatureRow(
+                        icon: "camera.fill",
+                        color: .blue,
+                        title: "Photo Recognition",
+                        subtitle: "Snap a photo, we'll identify the food"
+                    )
+
+                    FeatureRow(
+                        icon: "chart.line.uptrend.xyaxis",
+                        color: .orange,
+                        title: "Track Progress",
+                        subtitle: "See your nutrition trends over time"
+                    )
+
+                    FeatureRow(
+                        icon: "target",
+                        color: .green,
+                        title: "Reach Your Goals",
+                        subtitle: "Personalized targets for your journey"
+                    )
+                }
+                .padding(.horizontal, 32)
+
+                Spacer()
+
+                // CTA Button
+                VStack(spacing: 16) {
+                    Button(action: { showAuthView = true }) {
+                        Text("Get Started")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(
+                                LinearGradient(
+                                    colors: [.green, .green.opacity(0.8)],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .foregroundColor(.white)
+                            .cornerRadius(16)
+                            .shadow(color: .green.opacity(0.3), radius: 10, y: 5)
+                    }
+
+                    Text("Free to use. No credit card required.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 40)
             }
-
-            Button(action: { showAuthView = true }) {
-                Text("Get Started")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.green)
-                    .foregroundColor(.white)
-                    .cornerRadius(12)
-            }
-            .padding(.horizontal, 40)
-
-            Spacer()
         }
     }
 
@@ -135,6 +206,37 @@ public struct ContentView: View {
                     Label(Tab.settings.title, systemImage: Tab.settings.icon)
                 }
                 .tag(Tab.settings)
+        }
+    }
+}
+
+// MARK: - Feature Row
+
+struct FeatureRow: View {
+    let icon: String
+    let color: Color
+    let title: String
+    let subtitle: String
+
+    var body: some View {
+        HStack(spacing: 16) {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundColor(color)
+                .frame(width: 50, height: 50)
+                .background(color.opacity(0.15))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.subheadline.weight(.semibold))
+
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+
+            Spacer()
         }
     }
 }
