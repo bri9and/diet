@@ -80,6 +80,29 @@ public final class FoodService {
         return try await apiClient.get("/barcode?code=\(barcode)")
     }
 
+    /// Parse natural language food description
+    public func parseFood(text: String) async throws -> VoiceParseFoodResponse {
+        let request = ParseFoodRequest(text: text)
+        return try await apiClient.post("/parse-food", body: request)
+    }
+
+    // MARK: - Goals
+
+    /// Get user goals
+    public func getGoals() async throws -> GoalsResponse {
+        return try await apiClient.get("/goals")
+    }
+
+    /// Update user goals
+    public func updateGoals(_ request: UpdateGoalsRequest) async throws -> GoalsResponse {
+        return try await apiClient.put("/goals", body: request)
+    }
+
+    /// Get progress for last 7 days
+    public func getProgress() async throws -> ProgressResponse {
+        return try await apiClient.get("/progress")
+    }
+
     // MARK: - Helpers
 
     private func formatDate(_ date: Date) -> String {

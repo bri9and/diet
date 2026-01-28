@@ -18,6 +18,7 @@ public struct AddFoodView: View {
     @State private var showBarcodeScanner = false
     @State private var showBarcodeResult = false
     @State private var scannedBarcode: String?
+    @State private var showVoiceInput = false
 
     let mealType: FoodLogRecord.MealType
     let onFoodAdded: () -> Void
@@ -108,6 +109,17 @@ public struct AddFoodView: View {
                     }
                 }
             }
+            #if os(iOS)
+            .sheet(isPresented: $showVoiceInput) {
+                VoiceInputView(
+                    mealType: mealType,
+                    foodService: environment.foodService
+                ) {
+                    onFoodAdded()
+                    dismiss()
+                }
+            }
+            #endif
         }
     }
 
@@ -153,9 +165,10 @@ public struct AddFoodView: View {
             .buttonStyle(.plain)
             #endif
 
+            #if os(iOS)
             // Voice button
             Button {
-                // TODO: Voice input
+                showVoiceInput = true
             } label: {
                 VStack(spacing: 4) {
                     Image(systemName: "mic.fill")
@@ -169,6 +182,7 @@ public struct AddFoodView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             .buttonStyle(.plain)
+            #endif
         }
         .padding()
     }

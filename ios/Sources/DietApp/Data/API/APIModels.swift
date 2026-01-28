@@ -308,3 +308,102 @@ public struct BarcodeNutrition: Decodable {
     public let sugarG: Double?
     public let sodiumMg: Double?
 }
+
+// MARK: - Voice Food Parsing
+
+public struct ParseFoodRequest: Encodable {
+    public let text: String
+
+    public init(text: String) {
+        self.text = text
+    }
+}
+
+public struct VoiceParseFoodResponse: Decodable {
+    public let success: Bool
+    public let provider: String
+    public let confidence: Double
+    public let items: [AnalyzedFoodItem]
+}
+
+// MARK: - Goals
+
+public struct GoalsResponse: Decodable {
+    public let success: Bool
+    public let goals: UserGoals
+}
+
+public struct UserGoals: Decodable {
+    public let dailyCalories: Int
+    public let dailyProteinG: Int
+    public let dailyCarbsG: Int
+    public let dailyFatG: Int
+    public let targetWeight: Double?
+    public let targetWeightUnit: String?
+    public let activityLevel: String?
+    public let goalType: String
+    public let weeklyGoalKg: Double?
+}
+
+public struct UpdateGoalsRequest: Encodable {
+    public let dailyCalories: Int
+    public let dailyProteinG: Int
+    public let dailyCarbsG: Int
+    public let dailyFatG: Int
+    public let goalType: String
+
+    public init(
+        dailyCalories: Int,
+        dailyProteinG: Int,
+        dailyCarbsG: Int,
+        dailyFatG: Int,
+        goalType: String
+    ) {
+        self.dailyCalories = dailyCalories
+        self.dailyProteinG = dailyProteinG
+        self.dailyCarbsG = dailyCarbsG
+        self.dailyFatG = dailyFatG
+        self.goalType = goalType
+    }
+}
+
+// MARK: - Progress
+
+public struct ProgressResponse: Decodable {
+    public let success: Bool
+    public let goals: ProgressGoals
+    public let progress: [DayProgress]
+    public let weeklyAverage: WeeklyAverage
+    public let daysTracked: Int
+}
+
+public struct ProgressGoals: Decodable {
+    public let dailyCalories: Int
+    public let dailyProteinG: Int
+    public let dailyCarbsG: Int
+    public let dailyFatG: Int
+    public let goalType: String
+}
+
+public struct WeeklyAverage: Decodable {
+    public let calories: Int
+    public let protein: Int
+    public let carbs: Int
+    public let fat: Int
+}
+
+public struct DayProgress: Decodable {
+    public let date: String
+    public let calories: NutrientProgress
+    public let protein: NutrientProgress
+    public let carbs: NutrientProgress
+    public let fat: NutrientProgress
+
+    public var caloriePercentage: Int { calories.percentage }
+}
+
+public struct NutrientProgress: Decodable {
+    public let consumed: Int
+    public let goal: Int
+    public let percentage: Int
+}
