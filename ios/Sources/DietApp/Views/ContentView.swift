@@ -1,4 +1,5 @@
 import SwiftUI
+import Clerk
 #if canImport(UIKit)
 import UIKit
 #endif
@@ -10,10 +11,12 @@ public struct ContentView: View {
     // MARK: - Environment
 
     @EnvironmentObject private var appEnvironment: AppEnvironment
+    @Environment(\.clerk) private var clerk
 
     // MARK: - State
 
     @State private var selectedTab: Tab = .today
+    @State private var showAuthView = false
 
     // MARK: - Types
 
@@ -48,6 +51,72 @@ public struct ContentView: View {
     // MARK: - Body
 
     public var body: some View {
+        Group {
+            if !clerk.isLoaded {
+                loadingView
+            } else if clerk.user != nil {
+                mainTabView
+            } else {
+                signInPromptView
+            }
+        }
+        #if os(iOS)
+        .sheet(isPresented: $showAuthView) {
+            AuthView()
+        }
+        #endif
+    }
+
+    // MARK: - Loading View
+
+    private var loadingView: some View {
+        VStack(spacing: 16) {
+            ProgressView()
+                .scaleEffect(1.5)
+            Text("Loading...")
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    // MARK: - Sign In Prompt
+
+    private var signInPromptView: some View {
+        VStack(spacing: 32) {
+            Spacer()
+
+            Image(systemName: "leaf.circle.fill")
+                .font(.system(size: 80))
+                .foregroundColor(.green)
+
+            VStack(spacing: 12) {
+                Text("Diet App")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+
+                Text("Track your nutrition, reach your goals")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+
+            Button(action: { showAuthView = true }) {
+                Text("Get Started")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.green)
+                    .foregroundColor(.white)
+                    .cornerRadius(12)
+            }
+            .padding(.horizontal, 40)
+
+            Spacer()
+        }
+    }
+
+    // MARK: - Main Tab View
+
+    private var mainTabView: some View {
         TabView(selection: $selectedTab) {
             TodayView(viewModel: appEnvironment.makeTodayViewModel())
                 .tabItem {

@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import Clerk
 
 /// Dependency container for the app
 /// Provides access to all core services and managers
@@ -18,8 +19,10 @@ public final class AppEnvironment: ObservableObject {
     /// HTTP client for API communication
     public let apiClient: APIClient
 
-    /// Authentication manager (Clerk integration placeholder)
-    public let authManager: AuthManager
+    // MARK: - Clerk Configuration
+
+    /// Clerk publishable key
+    public static let clerkPublishableKey = "pk_test_d2FudGVkLWJ1ZmZhbG8tMzIuY2xlcmsuYWNjb3VudHMuZGV2JA"
 
     // MARK: - Repositories
 
@@ -72,12 +75,31 @@ public final class AppEnvironment: ObservableObject {
 
         // Initialize core services
         self.databaseManager = DatabaseManager()
-        self.apiClient = APIClient(baseURL: URL(string: "http://localhost:3000/api")!)
-        self.authManager = AuthManager()
 
-        // Update API client base URL after initialization
-        Task { @MainActor in
-            self.apiClient.updateBaseURL(self.apiBaseURL)
+        // Initialize API client with correct base URL
+        let baseURL = environment == .development
+            ? URL(string: "http://localhost:3000/api")!
+            : URL(string: "https://backend-xi-ivory-20.vercel.app/api")!
+        self.apiClient = APIClient(baseURL: baseURL)
+
+        // Connect auth token provider to API client
+        self.apiClient.tokenProvider = {
+            await Self.getClerkToken()
+        }
+    }
+
+    // MARK: - Auth Helper
+
+    /// Get JWT token from Clerk session
+    @MainActor
+    public static func getClerkToken() async -> String? {
+        guard let session = Clerk.shared.session else { return nil }
+        do {
+            let token = try await session.getToken()
+            return token?.jwt
+        } catch {
+            print("Failed to get Clerk token: \(error)")
+            return nil
         }
     }
 
@@ -87,7 +109,6 @@ public final class AppEnvironment: ObservableObject {
     public func makeTodayViewModel() -> TodayViewModel {
         TodayViewModel(
             foodLogRepository: foodLogRepository,
-            authManager: authManager,
             foodService: foodService
         )
     }
@@ -95,54 +116,5 @@ public final class AppEnvironment: ObservableObject {
     /// Creates an AddFoodViewModel with required dependencies
     public func makeAddFoodViewModel() -> AddFoodViewModel {
         AddFoodViewModel(foodService: foodService)
-    }
-}
-
-// MARK: - Auth Manager
-
-/// Authentication manager using Clerk iOS SDK (placeholder)
-/// Replace with actual Clerk integration when ready
-public final class AuthManager: ObservableObject {
-
-    // MARK: - Published State
-
-    @Published public private(set) var isAuthenticated: Bool = false
-    @Published public private(set) var currentUserId: String?
-    @Published public private(set) var authToken: String?
-
-    // MARK: - Initialization
-
-    public init() {
-        // TODO: Initialize Clerk SDK
-        // Clerk.shared.configure(publishableKey: "your-publishable-key")
-    }
-
-    // MARK: - Auth Methods
-
-    /// Sign in with email/password
-    public func signIn(email: String, password: String) async throws {
-        // TODO: Implement Clerk sign in
-        // For now, simulate a successful sign in for development
-        await MainActor.run {
-            self.isAuthenticated = true
-            self.currentUserId = "dev-user-id"
-            self.authToken = "dev-token"
-        }
-    }
-
-    /// Sign out the current user
-    public func signOut() async throws {
-        // TODO: Implement Clerk sign out
-        await MainActor.run {
-            self.isAuthenticated = false
-            self.currentUserId = nil
-            self.authToken = nil
-        }
-    }
-
-    /// Get the current auth token for API requests
-    public func getToken() async -> String? {
-        // TODO: Get fresh token from Clerk
-        return authToken
     }
 }

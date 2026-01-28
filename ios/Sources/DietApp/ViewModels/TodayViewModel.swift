@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import Clerk
 
 /// View model for the Today dashboard
 /// Manages loading and displaying today's food logs and nutrition summary
@@ -21,36 +22,16 @@ public final class TodayViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let foodLogRepository: FoodLogRepository
-    private let authManager: AuthManager
     private let foodService: FoodService
-    private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Initialization
 
     public init(
         foodLogRepository: FoodLogRepository,
-        authManager: AuthManager,
         foodService: FoodService
     ) {
         self.foodLogRepository = foodLogRepository
-        self.authManager = authManager
         self.foodService = foodService
-
-        setupObservation()
-    }
-
-    // MARK: - Setup
-
-    private func setupObservation() {
-        // Observe auth state changes
-        authManager.$currentUserId
-            .sink { [weak self] userId in
-                guard userId != nil else { return }
-                Task {
-                    await self?.loadTodayData()
-                }
-            }
-            .store(in: &cancellables)
     }
 
     // MARK: - Data Loading
@@ -88,7 +69,7 @@ public final class TodayViewModel: ObservableObject {
             print("Failed to load today's data: \(error)")
 
             // Fallback to local data if available
-            if let userId = authManager.currentUserId {
+            if let userId = Clerk.shared.user?.id {
                 do {
                     let logs = try await foodLogRepository.fetchToday(userId: userId)
                     todayLogs = logs

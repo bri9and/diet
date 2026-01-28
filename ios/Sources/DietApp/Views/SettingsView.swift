@@ -1,4 +1,5 @@
 import SwiftUI
+import Clerk
 #if canImport(UIKit)
 import UIKit
 #endif
@@ -9,6 +10,7 @@ public struct SettingsView: View {
     // MARK: - Environment
 
     @EnvironmentObject private var appEnvironment: AppEnvironment
+    @Environment(\.clerk) private var clerk
 
     // MARK: - Initialization
 
@@ -128,7 +130,7 @@ public struct SettingsView: View {
                 Section {
                     Button(role: .destructive) {
                         Task {
-                            try? await appEnvironment.authManager.signOut()
+                            try? await clerk.session?.revoke()
                         }
                     } label: {
                         HStack {
@@ -146,31 +148,34 @@ public struct SettingsView: View {
     // MARK: - Account Row
 
     private var accountRow: some View {
-        NavigationLink {
-            Text("Profile")
-        } label: {
-            HStack(spacing: 16) {
-                // Avatar placeholder
-                Circle()
-                    .fill(Color.avatarBackground)
-                    .frame(width: 56, height: 56)
-                    .overlay {
-                        Image(systemName: "person.fill")
-                            .font(.title2)
-                            .foregroundStyle(.secondary)
-                    }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("User")
-                        .font(.headline)
-
-                    Text("user@example.com")
-                        .font(.subheadline)
+        HStack(spacing: 16) {
+            // User avatar
+            Circle()
+                .fill(Color.avatarBackground)
+                .frame(width: 56, height: 56)
+                .overlay {
+                    Image(systemName: "person.fill")
+                        .font(.title2)
                         .foregroundStyle(.secondary)
                 }
+
+            VStack(alignment: .leading, spacing: 4) {
+                if let user = clerk.user {
+                    Text(user.firstName ?? user.username ?? "User")
+                        .font(.headline)
+
+                    if let email = user.primaryEmailAddress?.emailAddress {
+                        Text(email)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                } else {
+                    Text("User")
+                        .font(.headline)
+                }
             }
-            .padding(.vertical, 4)
         }
+        .padding(.vertical, 4)
     }
 
     // MARK: - Settings Row

@@ -245,7 +245,6 @@ extension Color {
     TodayView(
         viewModel: TodayViewModel(
             foodLogRepository: FoodLogRepository(databaseManager: DatabaseManager()),
-            authManager: AuthManager(),
             foodService: FoodService(apiClient: APIClient(baseURL: URL(string: "http://localhost:3000/api")!))
         )
     )
