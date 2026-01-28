@@ -1,0 +1,28 @@
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+}
+
+body {
+  color: #333;
+  background: #fafaf8;
+}
+
+a {
+  color: #1a5f5f;
+  text-decoration: none;
+}
+
+header {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
