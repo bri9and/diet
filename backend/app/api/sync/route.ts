@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import connectDB from "@/lib/mongodb";
 import { UserProfile } from "@/models/UserProfile";
 import { UserGoals } from "@/models/UserGoals";
-import { FoodLog } from "@/models/FoodLog";
+import { FoodLog } from "@/lib/models/FoodLog";
 import { NotificationPreferences } from "@/models/NotificationPreferences";
 
 // GET sync data - returns all user data for syncing

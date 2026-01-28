@@ -253,4 +253,4 @@ FoodLogSchema.index({ userId: 1, deletedAt: 1, loggedDate: -1 });
 FoodLogSchema.index({ "items.foodId": 1 });
 FoodLogSchema.index({ userId: 1, updatedAt: -1 });
 
-export const FoodLog = mongoose.model<IFoodLog>("FoodLog", FoodLogSchema);
+export const FoodLog = mongoose.models.FoodLog || mongoose.model<IFoodLog>("FoodLog", FoodLogSchema);

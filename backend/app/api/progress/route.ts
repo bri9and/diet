@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import connectDB from "@/lib/mongodb";
 import { UserGoals } from "@/models/UserGoals";
-import { FoodLog } from "@/models/FoodLog";
+import { FoodLog } from "@/lib/models/FoodLog";
 
 // GET progress for a date range
 export async function GET(request: NextRequest) {
