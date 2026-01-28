@@ -279,3 +279,32 @@ public struct AnalyzedNutrition: Decodable {
     public let carbsG: Double
     public let fatG: Double
 }
+
+// MARK: - Barcode Lookup
+
+public struct BarcodeLookupResponse: Decodable {
+    public let success: Bool
+    public let product: BarcodeProduct?
+    public let error: String?
+}
+
+public struct BarcodeProduct: Decodable {
+    public let barcode: String
+    public let name: String
+    public let brand: String?
+    public let servingSize: String?
+    public let servingUnit: String?
+    public let nutrition: BarcodeNutrition
+    public let imageUrl: String?
+    public let source: String
+}
+
+public struct BarcodeNutrition: Decodable {
+    public let calories: Double
+    public let proteinG: Double
+    public let carbsG: Double
+    public let fatG: Double
+    public let fiberG: Double?
+    public let sugarG: Double?
+    public let sodiumMg: Double?
+}

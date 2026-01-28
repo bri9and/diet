@@ -75,6 +75,11 @@ public final class FoodService {
         return try await apiClient.post("/analyze-photo", body: request)
     }
 
+    /// Look up a product by barcode
+    public func lookupBarcode(_ barcode: String) async throws -> BarcodeLookupResponse {
+        return try await apiClient.get("/barcode?code=\(barcode)")
+    }
+
     // MARK: - Helpers
 
     private func formatDate(_ date: Date) -> String {

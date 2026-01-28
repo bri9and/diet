@@ -15,6 +15,9 @@ public struct AddFoodView: View {
     @State private var showCamera = false
     @State private var showPhotoReview = false
     @State private var capturedPhotoData: Data?
+    @State private var showBarcodeScanner = false
+    @State private var showBarcodeResult = false
+    @State private var scannedBarcode: String?
 
     let mealType: FoodLogRecord.MealType
     let onFoodAdded: () -> Void
@@ -85,6 +88,26 @@ public struct AddFoodView: View {
                     }
                 }
             }
+            #if os(iOS)
+            .fullScreenCover(isPresented: $showBarcodeScanner) {
+                BarcodeScannerView { barcode in
+                    scannedBarcode = barcode
+                    showBarcodeResult = true
+                }
+            }
+            #endif
+            .sheet(isPresented: $showBarcodeResult) {
+                if let barcode = scannedBarcode {
+                    BarcodeResultView(
+                        barcode: barcode,
+                        mealType: mealType,
+                        foodService: environment.foodService
+                    ) {
+                        onFoodAdded()
+                        dismiss()
+                    }
+                }
+            }
         }
     }
 
@@ -111,9 +134,10 @@ public struct AddFoodView: View {
             .buttonStyle(.plain)
             #endif
 
+            #if os(iOS)
             // Barcode button
             Button {
-                // TODO: Barcode scanner
+                showBarcodeScanner = true
             } label: {
                 VStack(spacing: 4) {
                     Image(systemName: "barcode.viewfinder")
@@ -127,6 +151,7 @@ public struct AddFoodView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             .buttonStyle(.plain)
+            #endif
 
             // Voice button
             Button {
