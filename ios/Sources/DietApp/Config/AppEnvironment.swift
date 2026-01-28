@@ -76,8 +76,10 @@ public final class AppEnvironment: ObservableObject {
         // Initialize core services
         self.databaseManager = DatabaseManager()
 
-        // Initialize API client with correct base URL
-        let baseURL = environment == .development
+        // Initialize API client - always use production backend
+        // Set USE_LOCAL_BACKEND=1 in scheme environment variables to use localhost
+        let useLocal = ProcessInfo.processInfo.environment["USE_LOCAL_BACKEND"] == "1"
+        let baseURL = useLocal
             ? URL(string: "http://localhost:3000/api")!
             : URL(string: "https://backend-xi-ivory-20.vercel.app/api")!
         self.apiClient = APIClient(baseURL: baseURL)

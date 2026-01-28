@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
 
     const data: OpenFoodFactsResponse = await response.json();
 
-    // Transform to our API format
+    // Transform to our API format (matching iOS APIFood model)
     const foods = data.products
       .filter((p) => p.product_name && p.nutriments)
       .map((product) => {
@@ -87,10 +87,21 @@ export async function GET(request: NextRequest) {
         const sugar = n.sugars_serving || n.sugars_100g || 0;
         const sodium = (n.sodium_serving || n.sodium_100g || 0) * 1000; // Convert g to mg
 
+        // Parse serving size from string like "100g" or "1 cup (240ml)"
+        const servingSizeMatch = product.serving_size?.match(/^(\d+(?:\.\d+)?)/);
+        const servingSize = servingSizeMatch ? parseFloat(servingSizeMatch[1]) : 100;
+        const servingUnit = product.serving_size?.replace(/^[\d.]+\s*/, "") || "g";
+
         return {
-          id: `off_${product.code}`,
+          _id: `off_${product.code}`,
+          source: "open_food_facts",
+          externalId: product.code,
           name: product.product_name || "Unknown",
           brand: product.brands || null,
+          description: null,
+          category: null,
+          servingSize: servingSize,
+          servingUnit: servingUnit,
           servingDescription: product.serving_size || "1 serving (100g)",
           nutrition: {
             calories: Math.round(calories),
@@ -102,7 +113,6 @@ export async function GET(request: NextRequest) {
             sodiumMg: Math.round(sodium),
           },
           imageUrl: product.image_url || null,
-          source: "open_food_facts",
         };
       });
 
