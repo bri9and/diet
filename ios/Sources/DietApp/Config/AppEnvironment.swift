@@ -46,9 +46,9 @@ public final class AppEnvironment: ObservableObject {
         case .development:
             return URL(string: "http://localhost:3000/api")!
         case .staging:
-            return URL(string: "https://staging-api.dietapp.example.com")!
+            return URL(string: "https://backend-xi-ivory-20.vercel.app/api")!
         case .production:
-            return URL(string: "https://api.dietapp.example.com")!
+            return URL(string: "https://backend-xi-ivory-20.vercel.app/api")!
         }
     }
 
