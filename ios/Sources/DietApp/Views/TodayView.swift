@@ -210,39 +210,29 @@ public struct TodayView: View {
     // MARK: - Quick Actions Bar
 
     private var quickActionsBar: some View {
-        HStack(spacing: 12) {
-            QuickActionButton(
-                icon: "camera.fill",
-                title: "Photo",
-                color: .blue
-            ) {
-                viewModel.showAddFood(for: suggestedMealType)
+        Button {
+            viewModel.showAddFood(for: suggestedMealType)
+        } label: {
+            HStack {
+                Image(systemName: "plus.circle.fill")
+                    .font(.title2)
+                Text("Add Meal")
+                    .font(.headline)
             }
-
-            QuickActionButton(
-                icon: "mic.fill",
-                title: "Voice",
-                color: .orange
-            ) {
-                viewModel.showAddFood(for: suggestedMealType)
-            }
-
-            QuickActionButton(
-                icon: "barcode.viewfinder",
-                title: "Scan",
-                color: .purple
-            ) {
-                viewModel.showAddFood(for: suggestedMealType)
-            }
-
-            QuickActionButton(
-                icon: "magnifyingglass",
-                title: "Search",
-                color: .green
-            ) {
-                viewModel.showAddFood(for: suggestedMealType)
-            }
+            .foregroundColor(.white)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+            .background(
+                LinearGradient(
+                    colors: [.green, .green.opacity(0.8)],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .shadow(color: .green.opacity(0.3), radius: 8, y: 4)
         }
+        .buttonStyle(.plain)
     }
 
     private var suggestedMealType: FoodLogRecord.MealType {
