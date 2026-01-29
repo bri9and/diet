@@ -37,16 +37,12 @@ public struct MeView: View {
                     // Body info
                     bodyInfoSection
 
-                    // Goals section
-                    goalsSection
-
                     // Settings link
                     settingsLink
                 }
                 .padding()
             }
             .background(Color.groupedBackground)
-            .navigationTitle("Me")
             .task {
                 await viewModel.loadProfile()
             }
@@ -194,39 +190,6 @@ public struct MeView: View {
         .padding(.vertical, 12)
     }
 
-    // MARK: - Goals Section
-
-    private var goalsSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Daily Goals")
-                .font(.headline)
-                .padding(.leading, 4)
-
-            HStack(spacing: 12) {
-                goalCard(label: "Calories", value: "\(viewModel.calorieGoal)", color: .green)
-                goalCard(label: "Protein", value: "\(viewModel.proteinGoal)g", color: .blue)
-                goalCard(label: "Carbs", value: "\(viewModel.carbsGoal)g", color: .orange)
-                goalCard(label: "Fat", value: "\(viewModel.fatGoal)g", color: .purple)
-            }
-        }
-    }
-
-    private func goalCard(label: String, value: String, color: Color) -> some View {
-        VStack(spacing: 6) {
-            Text(value)
-                .font(.system(size: 18, weight: .bold, design: .rounded))
-                .foregroundColor(color)
-
-            Text(label)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 16)
-        .background(Color.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
-
     // MARK: - Settings Link
 
     private var settingsLink: some View {
@@ -264,7 +227,6 @@ public struct MeView: View {
 public final class MeViewModel: ObservableObject {
 
     @Published public var profile: UserProfile?
-    @Published public var goals: UserGoals?
     @Published public var streak: Int = 0
     @Published public var totalMeals: Int = 0
     @Published public var avgCalories: Int = 0
@@ -279,9 +241,6 @@ public final class MeViewModel: ObservableObject {
         do {
             let profileResponse = try await foodService.getProfile()
             profile = profileResponse.profile
-
-            let goalsResponse = try await foodService.getGoals()
-            goals = goalsResponse.goals
 
             // Load progress for stats
             let progressResponse = try await foodService.getProgress()
@@ -334,19 +293,4 @@ public final class MeViewModel: ObservableObject {
         }
     }
 
-    public var calorieGoal: Int {
-        goals?.dailyCalories ?? 2000
-    }
-
-    public var proteinGoal: Int {
-        goals?.dailyProteinG ?? 50
-    }
-
-    public var carbsGoal: Int {
-        goals?.dailyCarbsG ?? 250
-    }
-
-    public var fatGoal: Int {
-        goals?.dailyFatG ?? 65
-    }
 }
