@@ -11,6 +11,7 @@ public struct TodayView: View {
     @StateObject private var viewModel: TodayViewModel
     @EnvironmentObject private var environment: AppEnvironment
     @State private var showQuickAdd = false
+    @State private var showMicronutrients = false
 
     // MARK: - Initialization
 
@@ -42,10 +43,22 @@ public struct TodayView: View {
                 // Floating Action Button
                 floatingAddButton
             }
-            .navigationTitle(formattedDate)
-            #if os(iOS)
-            .navigationBarTitleDisplayMode(.large)
-            #endif
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    HStack(spacing: 10) {
+                        Image("Logo")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 34, height: 34)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                        Text("Fuelvio")
+                            .font(.title3.weight(.bold))
+                            .foregroundColor(.primary)
+                    }
+                }
+            }
             .refreshable {
                 await viewModel.loadTodayData()
             }
@@ -72,6 +85,11 @@ public struct TodayView: View {
                     }
                 )
                 .presentationDetents([.medium])
+            }
+            .sheet(isPresented: $showMicronutrients) {
+                if let totals = viewModel.dailyTotals {
+                    MicronutrientView(nutrition: totals.toFullNutrition())
+                }
             }
         }
     }
@@ -149,6 +167,23 @@ public struct TodayView: View {
                     unit: "g",
                     color: .purple
                 )
+            }
+
+            // View Micronutrients Button
+            Button {
+                showMicronutrients = true
+            } label: {
+                HStack {
+                    Image(systemName: "chart.bar.doc.horizontal")
+                        .font(.subheadline)
+                    Text("View Vitamins & Minerals")
+                        .font(.subheadline.weight(.medium))
+                }
+                .foregroundColor(.teal)
+                .padding(.vertical, 10)
+                .padding(.horizontal, 20)
+                .background(Color.teal.opacity(0.1))
+                .clipShape(Capsule())
             }
         }
         .padding(24)

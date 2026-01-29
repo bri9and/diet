@@ -12,6 +12,7 @@ public final class TodayViewModel: ObservableObject {
     @Published public private(set) var todayLogs: [FoodLogRecord] = []
     @Published public private(set) var apiLogs: [APIFoodLog] = []
     @Published public private(set) var nutrition: NutritionSummary = .empty
+    @Published public private(set) var dailyTotals: DailyTotals?
     @Published public private(set) var targets: NutritionTargets?
     @Published public private(set) var isLoading: Bool = false
     @Published public private(set) var error: Error?
@@ -44,6 +45,9 @@ public final class TodayViewModel: ObservableObject {
         do {
             // Fetch from API
             let summary = try await foodService.fetchDailySummary()
+
+            // Store daily totals (includes micronutrients)
+            dailyTotals = summary.totals
 
             // Update nutrition from API response
             nutrition = NutritionSummary(

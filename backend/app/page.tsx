@@ -17,19 +17,15 @@ export default function Home() {
         margin: "0 auto"
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <div style={{
-            width: "36px",
-            height: "36px",
-            borderRadius: "10px",
-            background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "white",
-            fontSize: "20px"
-          }}>
-            🌿
-          </div>
+          <img
+            src="/logo.png"
+            alt="Fuelvio"
+            style={{
+              width: "40px",
+              height: "40px",
+              borderRadius: "10px"
+            }}
+          />
           <span style={{ fontWeight: 700, fontSize: "1.25rem", color: "#111" }}>Fuelvio</span>
         </div>
       </header>
@@ -132,18 +128,15 @@ export default function Home() {
               flexDirection: "column",
               gap: "1rem"
             }}>
-              <div style={{
-                width: "80px",
-                height: "80px",
-                borderRadius: "20px",
-                background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "40px"
-              }}>
-                🌿
-              </div>
+              <img
+                src="/logo.png"
+                alt="Fuelvio App"
+                style={{
+                  width: "100px",
+                  height: "100px",
+                  borderRadius: "24px"
+                }}
+              />
               <p style={{ color: "#166534", fontWeight: 600 }}>Coming Soon</p>
             </div>
           </div>

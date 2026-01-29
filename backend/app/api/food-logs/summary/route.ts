@@ -35,8 +35,9 @@ export async function GET(request: NextRequest) {
       deletedAt: null,
     }).sort({ loggedAt: 1 });
 
-    // Calculate daily totals
+    // Calculate daily totals including micronutrients
     const dailyTotals = {
+      // Macros
       calories: 0,
       proteinG: 0,
       carbsG: 0,
@@ -46,6 +47,36 @@ export async function GET(request: NextRequest) {
       sodiumMg: 0,
       mealCount: foodLogs.length,
       itemCount: 0,
+      // Vitamins
+      vitaminAMcg: 0,
+      vitaminCMg: 0,
+      vitaminDMcg: 0,
+      vitaminEMg: 0,
+      vitaminKMcg: 0,
+      vitaminB1Mg: 0,
+      vitaminB2Mg: 0,
+      vitaminB3Mg: 0,
+      vitaminB5Mg: 0,
+      vitaminB6Mg: 0,
+      vitaminB9Mcg: 0,
+      vitaminB12Mcg: 0,
+      cholineMg: 0,
+      // Minerals
+      calciumMg: 0,
+      ironMg: 0,
+      magnesiumMg: 0,
+      phosphorusMg: 0,
+      potassiumMg: 0,
+      zincMg: 0,
+      copperMg: 0,
+      manganeseMg: 0,
+      seleniumMcg: 0,
+      // Lipids
+      saturatedFatG: 0,
+      monounsaturatedFatG: 0,
+      polyunsaturatedFatG: 0,
+      transFatG: 0,
+      cholesterolMg: 0,
     };
 
     // Group by meal type
@@ -57,6 +88,7 @@ export async function GET(request: NextRequest) {
     };
 
     for (const log of foodLogs) {
+      // Macros
       dailyTotals.calories += log.totals?.calories || 0;
       dailyTotals.proteinG += log.totals?.proteinG || 0;
       dailyTotals.carbsG += log.totals?.carbsG || 0;
@@ -65,6 +97,41 @@ export async function GET(request: NextRequest) {
       dailyTotals.sugarG += log.totals?.sugarG || 0;
       dailyTotals.sodiumMg += log.totals?.sodiumMg || 0;
       dailyTotals.itemCount += log.totals?.itemCount || 0;
+
+      // Aggregate micronutrients from items (if present)
+      for (const item of log.items || []) {
+        const n = item.nutrition || {};
+        // Vitamins
+        dailyTotals.vitaminAMcg += n.vitaminAMcg || 0;
+        dailyTotals.vitaminCMg += n.vitaminCMg || 0;
+        dailyTotals.vitaminDMcg += n.vitaminDMcg || 0;
+        dailyTotals.vitaminEMg += n.vitaminEMg || 0;
+        dailyTotals.vitaminKMcg += n.vitaminKMcg || 0;
+        dailyTotals.vitaminB1Mg += n.vitaminB1Mg || 0;
+        dailyTotals.vitaminB2Mg += n.vitaminB2Mg || 0;
+        dailyTotals.vitaminB3Mg += n.vitaminB3Mg || 0;
+        dailyTotals.vitaminB5Mg += n.vitaminB5Mg || 0;
+        dailyTotals.vitaminB6Mg += n.vitaminB6Mg || 0;
+        dailyTotals.vitaminB9Mcg += n.vitaminB9Mcg || 0;
+        dailyTotals.vitaminB12Mcg += n.vitaminB12Mcg || 0;
+        dailyTotals.cholineMg += n.cholineMg || 0;
+        // Minerals
+        dailyTotals.calciumMg += n.calciumMg || 0;
+        dailyTotals.ironMg += n.ironMg || 0;
+        dailyTotals.magnesiumMg += n.magnesiumMg || 0;
+        dailyTotals.phosphorusMg += n.phosphorusMg || 0;
+        dailyTotals.potassiumMg += n.potassiumMg || 0;
+        dailyTotals.zincMg += n.zincMg || 0;
+        dailyTotals.copperMg += n.copperMg || 0;
+        dailyTotals.manganeseMg += n.manganeseMg || 0;
+        dailyTotals.seleniumMcg += n.seleniumMcg || 0;
+        // Lipids
+        dailyTotals.saturatedFatG += n.saturatedFatG || 0;
+        dailyTotals.monounsaturatedFatG += n.monounsaturatedFatG || 0;
+        dailyTotals.polyunsaturatedFatG += n.polyunsaturatedFatG || 0;
+        dailyTotals.transFatG += n.transFatG || 0;
+        dailyTotals.cholesterolMg += n.cholesterolMg || 0;
+      }
 
       if (mealsByType[log.mealType]) {
         mealsByType[log.mealType].push(log);

@@ -123,6 +123,29 @@ public final class FoodService {
         return try await apiClient.post("/parse-food", body: request)
     }
 
+    // MARK: - USDA Foods (Micronutrients)
+
+    /// Search USDA FoodData Central database
+    public func searchUSDAFoods(query: String, limit: Int = 20) async throws -> USDASearchResponse {
+        return try await apiClient.get(
+            "/foods/usda/search",
+            queryItems: [
+                URLQueryItem(name: "query", value: query),
+                URLQueryItem(name: "limit", value: String(limit))
+            ]
+        )
+    }
+
+    /// Get detailed nutrition info from USDA including all micronutrients
+    public func getUSDAFoodDetails(fdcId: Int) async throws -> USDAFoodDetailResponse {
+        return try await apiClient.get("/foods/usda/\(fdcId)")
+    }
+
+    /// Get Recommended Daily Allowances for all nutrients
+    public func getRDAValues() async throws -> RDAResponse {
+        return try await apiClient.get("/nutrition/rda")
+    }
+
     // MARK: - Goals
 
     /// Get user goals

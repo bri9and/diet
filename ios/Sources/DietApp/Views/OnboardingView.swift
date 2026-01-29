@@ -85,7 +85,7 @@ public struct OnboardingView: View {
             }
 
             VStack(spacing: 16) {
-                Text("Welcome to Diet App")
+                Text("Welcome to Fuelvio")
                     .font(.largeTitle)
                     .fontWeight(.bold)
 

@@ -10,7 +10,7 @@ public struct ContentView: View {
 
     // MARK: - Version
 
-    public static let appVersion = "1.008"
+    public static let appVersion = "1.009"
 
     // MARK: - Environment
 
@@ -104,25 +104,15 @@ public struct ContentView: View {
 
                 // Logo and branding
                 VStack(spacing: 20) {
-                    ZStack {
-                        Circle()
-                            .fill(
-                                LinearGradient(
-                                    colors: [.green, .green.opacity(0.7)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .frame(width: 120, height: 120)
-                            .shadow(color: .green.opacity(0.3), radius: 20, y: 10)
-
-                        Image(systemName: "leaf.fill")
-                            .font(.system(size: 50))
-                            .foregroundColor(.white)
-                    }
+                    Image("Logo")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 120, height: 120)
+                        .clipShape(RoundedRectangle(cornerRadius: 28))
+                        .shadow(color: .green.opacity(0.3), radius: 20, y: 10)
 
                     VStack(spacing: 8) {
-                        Text("Diet App")
+                        Text("Fuelvio")
                             .font(.system(size: 36, weight: .bold, design: .rounded))
 
                         Text("Your personal nutrition companion")

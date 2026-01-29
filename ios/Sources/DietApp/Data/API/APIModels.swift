@@ -10,6 +10,7 @@ public struct DailySummaryResponse: Decodable {
 }
 
 public struct DailyTotals: Decodable {
+    // Macros
     public let calories: Double
     public let proteinG: Double
     public let carbsG: Double
@@ -19,6 +20,79 @@ public struct DailyTotals: Decodable {
     public let sodiumMg: Double
     public let mealCount: Int
     public let itemCount: Int
+
+    // Vitamins
+    public let vitaminAMcg: Double?
+    public let vitaminCMg: Double?
+    public let vitaminDMcg: Double?
+    public let vitaminEMg: Double?
+    public let vitaminKMcg: Double?
+    public let vitaminB1Mg: Double?
+    public let vitaminB2Mg: Double?
+    public let vitaminB3Mg: Double?
+    public let vitaminB5Mg: Double?
+    public let vitaminB6Mg: Double?
+    public let vitaminB9Mcg: Double?
+    public let vitaminB12Mcg: Double?
+    public let cholineMg: Double?
+
+    // Minerals
+    public let calciumMg: Double?
+    public let ironMg: Double?
+    public let magnesiumMg: Double?
+    public let phosphorusMg: Double?
+    public let potassiumMg: Double?
+    public let zincMg: Double?
+    public let copperMg: Double?
+    public let manganeseMg: Double?
+    public let seleniumMcg: Double?
+
+    // Lipids
+    public let saturatedFatG: Double?
+    public let monounsaturatedFatG: Double?
+    public let polyunsaturatedFatG: Double?
+    public let transFatG: Double?
+    public let cholesterolMg: Double?
+
+    /// Convert to FullNutrition for micronutrient view
+    public func toFullNutrition() -> FullNutrition {
+        FullNutrition(
+            calories: calories,
+            proteinG: proteinG,
+            fatG: fatG,
+            carbsG: carbsG,
+            fiberG: fiberG,
+            sugarG: sugarG,
+            vitaminAMcg: vitaminAMcg,
+            vitaminCMg: vitaminCMg,
+            vitaminDMcg: vitaminDMcg,
+            vitaminEMg: vitaminEMg,
+            vitaminKMcg: vitaminKMcg,
+            vitaminB1Mg: vitaminB1Mg,
+            vitaminB2Mg: vitaminB2Mg,
+            vitaminB3Mg: vitaminB3Mg,
+            vitaminB5Mg: vitaminB5Mg,
+            vitaminB6Mg: vitaminB6Mg,
+            vitaminB9Mcg: vitaminB9Mcg,
+            vitaminB12Mcg: vitaminB12Mcg,
+            cholineMg: cholineMg,
+            calciumMg: calciumMg,
+            ironMg: ironMg,
+            magnesiumMg: magnesiumMg,
+            phosphorusMg: phosphorusMg,
+            potassiumMg: potassiumMg,
+            sodiumMg: sodiumMg,
+            zincMg: zincMg,
+            copperMg: copperMg,
+            manganeseMg: manganeseMg,
+            seleniumMcg: seleniumMcg,
+            saturatedFatG: saturatedFatG,
+            monounsaturatedFatG: monounsaturatedFatG,
+            polyunsaturatedFatG: polyunsaturatedFatG,
+            transFatG: transFatG,
+            cholesterolMg: cholesterolMg
+        )
+    }
 }
 
 public struct MealsByType: Decodable {
@@ -507,4 +581,176 @@ public struct GoalCalculations: Decodable {
     public let dailyFatG: Int
     public let goalType: String
     public let weeklyGoalKg: Double
+}
+
+// MARK: - USDA Food Search
+
+public struct USDASearchResponse: Decodable {
+    public let success: Bool
+    public let data: [USDAFood]
+    public let query: String
+    public let totalHits: Int
+    public let currentPage: Int
+    public let totalPages: Int
+}
+
+public struct USDAFood: Decodable, Identifiable {
+    public let id: String
+    public let fdcId: Int
+    public let source: String
+    public let dataType: String
+    public let name: String
+    public let brand: String?
+    public let barcode: String?
+    public let category: String?
+    public let servingSize: Double
+    public let servingUnit: String
+    public let servingDescription: String?
+    public let nutrition: FullNutrition
+
+    enum CodingKeys: String, CodingKey {
+        case id = "_id"
+        case fdcId, source, dataType, name, brand, barcode, category
+        case servingSize, servingUnit, servingDescription, nutrition
+    }
+}
+
+public struct USDAFoodDetailResponse: Decodable {
+    public let success: Bool
+    public let data: USDAFoodDetail
+}
+
+public struct USDAFoodDetail: Decodable, Identifiable {
+    public let id: String
+    public let fdcId: Int
+    public let source: String
+    public let dataType: String
+    public let name: String
+    public let brand: String?
+    public let barcode: String?
+    public let category: String?
+    public let ingredients: String?
+    public let servingSize: Double
+    public let servingUnit: String
+    public let servingDescription: String?
+    public let nutrition: FullNutrition
+    public let rawNutrients: [RawNutrient]?
+
+    enum CodingKeys: String, CodingKey {
+        case id = "_id"
+        case fdcId, source, dataType, name, brand, barcode, category
+        case ingredients, servingSize, servingUnit, servingDescription
+        case nutrition, rawNutrients
+    }
+}
+
+public struct RawNutrient: Decodable, Identifiable {
+    public let id: Int
+    public let name: String
+    public let amount: Double
+    public let unit: String
+}
+
+// MARK: - Full Nutrition with Micronutrients
+
+public struct FullNutrition: Decodable {
+    // Macros (required)
+    public let calories: Double
+    public let proteinG: Double
+    public let fatG: Double
+    public let carbsG: Double
+
+    // Macros (optional)
+    public let fiberG: Double?
+    public let sugarG: Double?
+
+    // Vitamins
+    public let vitaminAMcg: Double?
+    public let vitaminCMg: Double?
+    public let vitaminDMcg: Double?
+    public let vitaminEMg: Double?
+    public let vitaminKMcg: Double?
+    public let vitaminB1Mg: Double?
+    public let vitaminB2Mg: Double?
+    public let vitaminB3Mg: Double?
+    public let vitaminB5Mg: Double?
+    public let vitaminB6Mg: Double?
+    public let vitaminB9Mcg: Double?
+    public let vitaminB12Mcg: Double?
+    public let cholineMg: Double?
+
+    // Minerals
+    public let calciumMg: Double?
+    public let ironMg: Double?
+    public let magnesiumMg: Double?
+    public let phosphorusMg: Double?
+    public let potassiumMg: Double?
+    public let sodiumMg: Double?
+    public let zincMg: Double?
+    public let copperMg: Double?
+    public let manganeseMg: Double?
+    public let seleniumMcg: Double?
+
+    // Lipids
+    public let saturatedFatG: Double?
+    public let monounsaturatedFatG: Double?
+    public let polyunsaturatedFatG: Double?
+    public let transFatG: Double?
+    public let cholesterolMg: Double?
+}
+
+// MARK: - RDA (Recommended Daily Allowances)
+
+public struct RDAResponse: Decodable {
+    public let success: Bool
+    public let data: [String: RDAValue]
+}
+
+public struct RDAValue: Decodable {
+    public let value: Double
+    public let unit: String
+    public let name: String
+}
+
+// MARK: - RDA Constants for Local Use
+
+public struct RDAConstants {
+    // Macros
+    public static let calories: Double = 2000
+    public static let proteinG: Double = 50
+    public static let fatG: Double = 78
+    public static let carbsG: Double = 275
+    public static let fiberG: Double = 28
+    public static let sugarG: Double = 50
+
+    // Vitamins
+    public static let vitaminAMcg: Double = 900
+    public static let vitaminCMg: Double = 90
+    public static let vitaminDMcg: Double = 20
+    public static let vitaminEMg: Double = 15
+    public static let vitaminKMcg: Double = 120
+    public static let vitaminB1Mg: Double = 1.2
+    public static let vitaminB2Mg: Double = 1.3
+    public static let vitaminB3Mg: Double = 16
+    public static let vitaminB5Mg: Double = 5
+    public static let vitaminB6Mg: Double = 1.7
+    public static let vitaminB9Mcg: Double = 400
+    public static let vitaminB12Mcg: Double = 2.4
+    public static let cholineMg: Double = 550
+
+    // Minerals
+    public static let calciumMg: Double = 1300
+    public static let ironMg: Double = 18
+    public static let magnesiumMg: Double = 420
+    public static let phosphorusMg: Double = 1250
+    public static let potassiumMg: Double = 4700
+    public static let sodiumMg: Double = 2300
+    public static let zincMg: Double = 11
+    public static let copperMg: Double = 0.9
+    public static let manganeseMg: Double = 2.3
+    public static let seleniumMcg: Double = 55
+
+    // Lipids
+    public static let saturatedFatG: Double = 20
+    public static let cholesterolMg: Double = 300
 }
