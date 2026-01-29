@@ -1,4 +1,5 @@
 import SwiftUI
+import PhotosUI
 import Clerk
 #if canImport(UIKit)
 import UIKit
@@ -15,6 +16,10 @@ public struct MeView: View {
     // MARK: - State
 
     @StateObject private var viewModel: MeViewModel
+    @State private var selectedPhotoItem: PhotosPickerItem?
+    @State private var profileImage: UIImage?
+    @State private var showingImagePicker = false
+    @State private var showingPhotoOptions = false
 
     // MARK: - Initialization
 
@@ -53,28 +58,76 @@ public struct MeView: View {
 
     private var profileHeader: some View {
         VStack(spacing: 16) {
-            // Avatar
-            Circle()
-                .fill(
-                    LinearGradient(
-                        colors: [.green, .green.opacity(0.7)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .frame(width: 100, height: 100)
-                .overlay {
-                    if let user = clerk.user, let initial = (user.firstName ?? user.username ?? "U").first {
-                        Text(String(initial).uppercased())
-                            .font(.system(size: 40, weight: .bold, design: .rounded))
-                            .foregroundColor(.white)
+            // Avatar with photo picker
+            Button {
+                showingPhotoOptions = true
+            } label: {
+                ZStack {
+                    if let profileImage = profileImage {
+                        Image(uiImage: profileImage)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 100, height: 100)
+                            .clipShape(Circle())
                     } else {
-                        Image(systemName: "person.fill")
-                            .font(.system(size: 40))
-                            .foregroundColor(.white)
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [.green, .green.opacity(0.7)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(width: 100, height: 100)
+                            .overlay {
+                                if let user = clerk.user, let initial = (user.firstName ?? user.username ?? "U").first {
+                                    Text(String(initial).uppercased())
+                                        .font(.system(size: 40, weight: .bold, design: .rounded))
+                                        .foregroundColor(.white)
+                                } else {
+                                    Image(systemName: "person.fill")
+                                        .font(.system(size: 40))
+                                        .foregroundColor(.white)
+                                }
+                            }
                     }
+
+                    // Camera badge
+                    Circle()
+                        .fill(Color.blue)
+                        .frame(width: 32, height: 32)
+                        .overlay {
+                            Image(systemName: "camera.fill")
+                                .font(.system(size: 14))
+                                .foregroundColor(.white)
+                        }
+                        .offset(x: 35, y: 35)
                 }
                 .shadow(color: .green.opacity(0.3), radius: 10, y: 5)
+            }
+            .buttonStyle(.plain)
+            .confirmationDialog("Change Profile Photo", isPresented: $showingPhotoOptions) {
+                Button("Take Photo") {
+                    showingImagePicker = true
+                }
+                Button("Choose from Library") {
+                    showingImagePicker = true
+                }
+                if profileImage != nil {
+                    Button("Remove Photo", role: .destructive) {
+                        removeProfilePhoto()
+                    }
+                }
+                Button("Cancel", role: .cancel) {}
+            }
+            .photosPicker(isPresented: $showingImagePicker, selection: $selectedPhotoItem, matching: .images)
+            .onChange(of: selectedPhotoItem) { _, newItem in
+                Task {
+                    if let newItem = newItem {
+                        await loadPhoto(from: newItem)
+                    }
+                }
+            }
 
             // Name and email
             VStack(spacing: 4) {
@@ -94,6 +147,46 @@ public struct MeView: View {
         .padding(.vertical, 24)
         .background(Color.cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 20))
+        .onAppear {
+            loadSavedProfileImage()
+        }
+    }
+
+    // MARK: - Photo Helpers
+
+    private func loadPhoto(from item: PhotosPickerItem) async {
+        guard let data = try? await item.loadTransferable(type: Data.self),
+              let image = UIImage(data: data) else { return }
+
+        await MainActor.run {
+            profileImage = image
+            saveProfileImage(image)
+        }
+    }
+
+    private func saveProfileImage(_ image: UIImage) {
+        guard let data = image.jpegData(compressionQuality: 0.8) else { return }
+        let url = getProfileImageURL()
+        try? data.write(to: url)
+    }
+
+    private func loadSavedProfileImage() {
+        let url = getProfileImageURL()
+        if let data = try? Data(contentsOf: url),
+           let image = UIImage(data: data) {
+            profileImage = image
+        }
+    }
+
+    private func removeProfilePhoto() {
+        profileImage = nil
+        let url = getProfileImageURL()
+        try? FileManager.default.removeItem(at: url)
+    }
+
+    private func getProfileImageURL() -> URL {
+        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        return documentsDirectory.appendingPathComponent("profile_photo.jpg")
     }
 
     // MARK: - Stats Section
