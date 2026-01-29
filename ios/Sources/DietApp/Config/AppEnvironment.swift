@@ -54,9 +54,9 @@ public final class AppEnvironment: ObservableObject {
         case .development:
             return URL(string: "http://localhost:3000/api")!
         case .staging:
-            return URL(string: "https://backend-xi-ivory-20.vercel.app/api")!
+            return URL(string: "https://fuelvio.com/api")!
         case .production:
-            return URL(string: "https://backend-xi-ivory-20.vercel.app/api")!
+            return URL(string: "https://fuelvio.com/api")!
         }
     }
 
@@ -86,7 +86,7 @@ public final class AppEnvironment: ObservableObject {
         let useLocal = ProcessInfo.processInfo.environment["USE_LOCAL_BACKEND"] == "1"
         let baseURL = useLocal
             ? URL(string: "http://localhost:3000/api")!
-            : URL(string: "https://backend-xi-ivory-20.vercel.app/api")!
+            : URL(string: "https://fuelvio.com/api")!
         self.apiClient = APIClient(baseURL: baseURL)
 
         // Connect auth token provider to API client
