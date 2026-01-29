@@ -1,5 +1,6 @@
 import SwiftUI
 import PhotosUI
+import Charts
 import Clerk
 #if canImport(UIKit)
 import UIKit
@@ -38,6 +39,9 @@ public struct MeView: View {
 
                     // Stats cards
                     statsSection
+
+                    // Calorie Analytics
+                    calorieAnalyticsSection
 
                     // Body info
                     bodyInfoSection
@@ -283,6 +287,117 @@ public struct MeView: View {
         .padding(.vertical, 12)
     }
 
+    // MARK: - Calorie Analytics Section
+
+    private var calorieAnalyticsSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Calorie Insights")
+                .font(.headline)
+                .padding(.leading, 4)
+
+            // Averages row
+            HStack(spacing: 12) {
+                averageCard(
+                    title: "Daily Avg",
+                    value: viewModel.dailyAverageCalories,
+                    color: .green
+                )
+                averageCard(
+                    title: "Weekly Avg",
+                    value: viewModel.weeklyAverageCalories,
+                    color: .blue
+                )
+                averageCard(
+                    title: "Monthly Avg",
+                    value: viewModel.monthlyAverageCalories,
+                    color: .purple
+                )
+            }
+
+            // Calorie chart
+            if !viewModel.dailyProgress.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Last 7 Days")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .padding(.leading, 4)
+
+                    Chart(viewModel.chartData) { day in
+                        BarMark(
+                            x: .value("Day", day.dayLabel),
+                            y: .value("Calories", day.calories)
+                        )
+                        .foregroundStyle(
+                            day.calories >= viewModel.calorieGoal
+                                ? Color.green.gradient
+                                : Color.orange.gradient
+                        )
+                        .cornerRadius(4)
+                    }
+                    .chartYAxis {
+                        AxisMarks(position: .leading)
+                    }
+                    .chartYScale(domain: 0...(Double(viewModel.calorieGoal) * 1.5))
+                    .chartPlotStyle { plotArea in
+                        plotArea
+                            .background(Color.gray.opacity(0.05))
+                            .cornerRadius(8)
+                    }
+                    .frame(height: 180)
+                    .padding(.horizontal, 4)
+
+                    // Goal line legend
+                    HStack(spacing: 16) {
+                        HStack(spacing: 4) {
+                            Circle()
+                                .fill(Color.green)
+                                .frame(width: 8, height: 8)
+                            Text("Met goal")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        HStack(spacing: 4) {
+                            Circle()
+                                .fill(Color.orange)
+                                .frame(width: 8, height: 8)
+                            Text("Under goal")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        Text("Goal: \(viewModel.calorieGoal) cal")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.horizontal, 4)
+                }
+                .padding()
+                .background(Color.cardBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+            }
+        }
+    }
+
+    private func averageCard(title: String, value: Int, color: Color) -> some View {
+        VStack(spacing: 6) {
+            Text("\(value)")
+                .font(.system(size: 20, weight: .bold, design: .rounded))
+                .foregroundColor(color)
+
+            Text(title)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+
+            Text("cal")
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 16)
+        .background(Color.cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
     // MARK: - Settings Link
 
     private var settingsLink: some View {
@@ -314,6 +429,15 @@ public struct MeView: View {
     }
 }
 
+// MARK: - Chart Data Model
+
+public struct CalorieChartData: Identifiable {
+    public let id = UUID()
+    public let date: Date
+    public let dayLabel: String
+    public let calories: Int
+}
+
 // MARK: - View Model
 
 @MainActor
@@ -323,6 +447,8 @@ public final class MeViewModel: ObservableObject {
     @Published public var streak: Int = 0
     @Published public var totalMeals: Int = 0
     @Published public var avgCalories: Int = 0
+    @Published public var dailyProgress: [DayProgress] = []
+    @Published public var calorieGoal: Int = 2000
 
     private let foodService: FoodService
 
@@ -339,12 +465,56 @@ public final class MeViewModel: ObservableObject {
             let progressResponse = try await foodService.getProgress()
             streak = progressResponse.daysTracked
             avgCalories = progressResponse.weeklyAverage.calories
+            dailyProgress = progressResponse.progress
+            calorieGoal = progressResponse.goals.dailyCalories
 
             // Calculate total meals (rough estimate)
             totalMeals = progressResponse.daysTracked * 3
         } catch {
             print("Failed to load profile: \(error)")
         }
+    }
+
+    // MARK: - Calorie Analytics
+
+    public var chartData: [CalorieChartData] {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+
+        let dayFormatter = DateFormatter()
+        dayFormatter.dateFormat = "EEE"
+
+        return dailyProgress.suffix(7).compactMap { day in
+            guard let date = formatter.date(from: day.date) else { return nil }
+            return CalorieChartData(
+                date: date,
+                dayLabel: dayFormatter.string(from: date),
+                calories: day.calories.consumed
+            )
+        }
+    }
+
+    public var dailyAverageCalories: Int {
+        guard !dailyProgress.isEmpty else { return 0 }
+        var total = 0
+        for day in dailyProgress { total += day.calories.consumed }
+        return total / dailyProgress.count
+    }
+
+    public var weeklyAverageCalories: Int {
+        let lastWeek = Array(dailyProgress.suffix(7))
+        guard !lastWeek.isEmpty else { return 0 }
+        var total = 0
+        for day in lastWeek { total += day.calories.consumed }
+        return total / lastWeek.count
+    }
+
+    public var monthlyAverageCalories: Int {
+        let lastMonth = Array(dailyProgress.suffix(30))
+        guard !lastMonth.isEmpty else { return 0 }
+        var total = 0
+        for day in lastMonth { total += day.calories.consumed }
+        return total / lastMonth.count
     }
 
     // MARK: - Computed Display Values
