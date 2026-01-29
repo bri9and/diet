@@ -128,8 +128,9 @@ public struct AddFoodView: View {
                     onAdd: { quantity in
                         Task {
                             await viewModel.logFood(item.food, mealType: mealType, quantity: quantity)
+                            selectedFood = nil  // Dismiss quantity sheet first
                             onFoodAdded()
-                            dismiss()
+                            dismiss()  // Then dismiss AddFoodView
                         }
                     }
                 )
@@ -529,7 +530,7 @@ struct FoodQuantitySheet: View {
                 // Add button
                 Button {
                     onAdd(quantity)
-                    dismiss()
+                    // Don't dismiss here - parent handles dismissal after async work completes
                 } label: {
                     Text("Add to \(mealType.displayName)")
                         .font(.headline)

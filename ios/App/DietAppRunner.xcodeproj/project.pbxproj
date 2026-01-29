@@ -8,11 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		B64A8E1C073191A063CE63C1 /* DietApp in Frameworks */ = {isa = PBXBuildFile; productRef = 19B72108A9D4A8831238CDF5 /* DietApp */; };
+		C75101E9337D5AEC3903134F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4FB147DC5607B92BABCA4D11 /* Assets.xcassets */; };
 		E24E2CE396FEE2BA3E5C8701 /* DietAppRunnerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71D1FA6C8854D652451AFA95 /* DietAppRunnerApp.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		1E09DBC1E0CCC4E0B52D3058 /* ios */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ios; path = ..; sourceTree = SOURCE_ROOT; };
+		4FB147DC5607B92BABCA4D11 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		71D1FA6C8854D652451AFA95 /* DietAppRunnerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DietAppRunnerApp.swift; sourceTree = "<group>"; };
 		D9BFEB56F1883D0B8514ECEA /* DietAppRunner.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = DietAppRunner.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -49,6 +51,7 @@
 		BB58993556A05E4D6D0EC62D /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				4FB147DC5607B92BABCA4D11 /* Assets.xcassets */,
 				71D1FA6C8854D652451AFA95 /* DietAppRunnerApp.swift */,
 			);
 			path = Sources;
@@ -70,6 +73,7 @@
 			buildConfigurationList = 49711BC6BCD429370750304F /* Build configuration list for PBXNativeTarget "DietAppRunner" */;
 			buildPhases = (
 				439D5DEBF06975FDAC098906 /* Sources */,
+				359BB4EFA3E5AFE0D9D2DB20 /* Resources */,
 				734795C6DFD6958DEDD4D38D /* Frameworks */,
 			);
 			buildRules = (
@@ -114,6 +118,17 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		359BB4EFA3E5AFE0D9D2DB20 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C75101E9337D5AEC3903134F /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		439D5DEBF06975FDAC098906 /* Sources */ = {
@@ -190,6 +205,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Fuelvio;
 				INFOPLIST_KEY_NSCameraUsageDescription = "We need camera access to take photos of your food for logging.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need microphone access for voice food logging.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "We need speech recognition to log food by voice.";
@@ -202,7 +218,8 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.dietapp.runner;
+				PRODUCT_BUNDLE_IDENTIFIER = com.fuelvio.app;
+				PRODUCT_NAME = Fuelvio;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -215,6 +232,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Fuelvio;
 				INFOPLIST_KEY_NSCameraUsageDescription = "We need camera access to take photos of your food for logging.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need microphone access for voice food logging.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "We need speech recognition to log food by voice.";
@@ -227,7 +245,8 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.dietapp.runner;
+				PRODUCT_BUNDLE_IDENTIFIER = com.fuelvio.app;
+				PRODUCT_NAME = Fuelvio;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
