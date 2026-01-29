@@ -36,12 +36,9 @@ public struct TodayView: View {
                         mealsSection
                     }
                     .padding(.horizontal)
-                    .padding(.bottom, 100) // Space for FAB
+                    .padding(.bottom, 20)
                 }
                 .background(Color.appBackground)
-
-                // Floating Action Button
-                floatingAddButton
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -270,29 +267,6 @@ public struct TodayView: View {
                 )
             }
         }
-    }
-
-    // MARK: - Floating Add Button
-
-    private var floatingAddButton: some View {
-        Button {
-            showQuickAdd = true
-        } label: {
-            Image(systemName: "plus")
-                .font(.title2.weight(.semibold))
-                .foregroundColor(.white)
-                .frame(width: 60, height: 60)
-                .background(
-                    LinearGradient(
-                        colors: [.green, .green.opacity(0.8)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .clipShape(Circle())
-                .shadow(color: .green.opacity(0.4), radius: 10, y: 5)
-        }
-        .padding(.bottom, 20)
     }
 }
 
