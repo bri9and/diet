@@ -38,8 +38,11 @@ export async function GET() {
         avatarUrl: profile.avatarUrl,
         heightCm: profile.heightCm,
         currentWeightKg: profile.currentWeightKg,
+        targetWeightKg: profile.targetWeightKg,
         birthDate: profile.birthDate?.toISOString().split("T")[0],
         gender: profile.gender,
+        activityLevel: profile.activityLevel,
+        onboardingCompleted: profile.onboardingCompleted,
         lastSyncAt: profile.lastSyncAt?.toISOString(),
       },
     });
@@ -66,8 +69,11 @@ export async function PUT(request: NextRequest) {
       displayName,
       heightCm,
       currentWeightKg,
+      targetWeightKg,
       birthDate,
       gender,
+      activityLevel,
+      onboardingCompleted,
     } = body;
 
     await connectDB();
@@ -79,8 +85,11 @@ export async function PUT(request: NextRequest) {
     if (displayName !== undefined) updateData.displayName = displayName;
     if (heightCm !== undefined) updateData.heightCm = heightCm;
     if (currentWeightKg !== undefined) updateData.currentWeightKg = currentWeightKg;
+    if (targetWeightKg !== undefined) updateData.targetWeightKg = targetWeightKg;
     if (birthDate !== undefined) updateData.birthDate = new Date(birthDate);
     if (gender !== undefined) updateData.gender = gender;
+    if (activityLevel !== undefined) updateData.activityLevel = activityLevel;
+    if (onboardingCompleted !== undefined) updateData.onboardingCompleted = onboardingCompleted;
 
     const profile = await UserProfile.findOneAndUpdate(
       { clerkId: userId },
@@ -96,8 +105,11 @@ export async function PUT(request: NextRequest) {
         avatarUrl: profile.avatarUrl,
         heightCm: profile.heightCm,
         currentWeightKg: profile.currentWeightKg,
+        targetWeightKg: profile.targetWeightKg,
         birthDate: profile.birthDate?.toISOString().split("T")[0],
         gender: profile.gender,
+        activityLevel: profile.activityLevel,
+        onboardingCompleted: profile.onboardingCompleted,
         lastSyncAt: profile.lastSyncAt?.toISOString(),
       },
     });

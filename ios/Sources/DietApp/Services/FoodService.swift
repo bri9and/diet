@@ -103,6 +103,23 @@ public final class FoodService {
         return try await apiClient.get("/progress")
     }
 
+    // MARK: - Profile
+
+    /// Get user profile
+    public func getProfile() async throws -> ProfileResponse {
+        return try await apiClient.get("/profile")
+    }
+
+    /// Update user profile
+    public func updateProfile(_ request: UpdateProfileRequest) async throws -> ProfileResponse {
+        return try await apiClient.put("/profile", body: request)
+    }
+
+    /// Calculate goals based on profile data
+    public func calculateGoals(_ request: CalculateGoalsRequest) async throws -> CalculateGoalsResponse {
+        return try await apiClient.post("/profile/calculate-goals", body: request)
+    }
+
     // MARK: - Helpers
 
     private func formatDate(_ date: Date) -> String {

@@ -411,3 +411,100 @@ public struct NutrientProgress: Decodable {
     public let goal: Int
     public let percentage: Int
 }
+
+// MARK: - Profile
+
+public struct ProfileResponse: Decodable {
+    public let success: Bool
+    public let profile: UserProfile
+}
+
+public struct UserProfile: Decodable {
+    public let displayName: String?
+    public let email: String?
+    public let avatarUrl: String?
+    public let heightCm: Double?
+    public let currentWeightKg: Double?
+    public let targetWeightKg: Double?
+    public let birthDate: String?
+    public let gender: String?
+    public let activityLevel: String?
+    public let onboardingCompleted: Bool?
+    public let lastSyncAt: String?
+}
+
+public struct UpdateProfileRequest: Encodable {
+    public let heightCm: Double?
+    public let currentWeightKg: Double?
+    public let targetWeightKg: Double?
+    public let birthDate: String?
+    public let gender: String?
+    public let activityLevel: String?
+    public let onboardingCompleted: Bool?
+
+    public init(
+        heightCm: Double? = nil,
+        currentWeightKg: Double? = nil,
+        targetWeightKg: Double? = nil,
+        birthDate: String? = nil,
+        gender: String? = nil,
+        activityLevel: String? = nil,
+        onboardingCompleted: Bool? = nil
+    ) {
+        self.heightCm = heightCm
+        self.currentWeightKg = currentWeightKg
+        self.targetWeightKg = targetWeightKg
+        self.birthDate = birthDate
+        self.gender = gender
+        self.activityLevel = activityLevel
+        self.onboardingCompleted = onboardingCompleted
+    }
+}
+
+// MARK: - Calculate Goals
+
+public struct CalculateGoalsRequest: Encodable {
+    public let heightCm: Double
+    public let currentWeightKg: Double
+    public let targetWeightKg: Double?
+    public let birthDate: String
+    public let gender: String
+    public let activityLevel: String
+    public let goalType: String?
+
+    public init(
+        heightCm: Double,
+        currentWeightKg: Double,
+        targetWeightKg: Double?,
+        birthDate: String,
+        gender: String,
+        activityLevel: String,
+        goalType: String? = nil
+    ) {
+        self.heightCm = heightCm
+        self.currentWeightKg = currentWeightKg
+        self.targetWeightKg = targetWeightKg
+        self.birthDate = birthDate
+        self.gender = gender
+        self.activityLevel = activityLevel
+        self.goalType = goalType
+    }
+}
+
+public struct CalculateGoalsResponse: Decodable {
+    public let success: Bool
+    public let calculations: GoalCalculations
+    public let goals: UserGoals
+}
+
+public struct GoalCalculations: Decodable {
+    public let age: Int
+    public let bmr: Int
+    public let tdee: Int
+    public let dailyCalories: Int
+    public let dailyProteinG: Int
+    public let dailyCarbsG: Int
+    public let dailyFatG: Int
+    public let goalType: String
+    public let weeklyGoalKg: Double
+}
