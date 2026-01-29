@@ -542,7 +542,9 @@ struct FoodQuantitySheet: View {
             }
             .padding()
             .navigationTitle("Add Food")
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {

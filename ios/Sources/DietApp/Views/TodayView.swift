@@ -43,7 +43,9 @@ public struct TodayView: View {
                 floatingAddButton
             }
             .navigationTitle(formattedDate)
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.large)
+            #endif
             .refreshable {
                 await viewModel.loadTodayData()
             }

@@ -10,7 +10,7 @@ public struct ContentView: View {
 
     // MARK: - Version
 
-    public static let appVersion = "1.006"
+    public static let appVersion = "1.007"
 
     // MARK: - Environment
 
@@ -27,7 +27,7 @@ public struct ContentView: View {
     public enum Tab: Int, CaseIterable, Identifiable {
         case today
         case insights
-        case settings
+        case me
 
         public var id: Int { rawValue }
 
@@ -35,7 +35,7 @@ public struct ContentView: View {
             switch self {
             case .today: return "Today"
             case .insights: return "Insights"
-            case .settings: return "Settings"
+            case .me: return "Me"
             }
         }
 
@@ -43,7 +43,7 @@ public struct ContentView: View {
             switch self {
             case .today: return "house.fill"
             case .insights: return "chart.line.uptrend.xyaxis"
-            case .settings: return "gearshape.fill"
+            case .me: return "person.fill"
             }
         }
     }
@@ -205,11 +205,11 @@ public struct ContentView: View {
                 }
                 .tag(Tab.insights)
 
-            SettingsView()
+            MeView(foodService: appEnvironment.foodService)
                 .tabItem {
-                    Label(Tab.settings.title, systemImage: Tab.settings.icon)
+                    Label(Tab.me.title, systemImage: Tab.me.icon)
                 }
-                .tag(Tab.settings)
+                .tag(Tab.me)
         }
         .overlay(alignment: .bottomLeading) {
             Text("v\(Self.appVersion)")

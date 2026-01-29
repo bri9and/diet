@@ -38,6 +38,11 @@ public final class AppEnvironment: ObservableObject {
         FoodService(apiClient: apiClient)
     }()
 
+    /// Notification service for push notifications
+    public lazy var notificationService: NotificationService = {
+        NotificationService(apiClient: apiClient)
+    }()
+
     // MARK: - Configuration
 
     /// Current environment (development, staging, production)
