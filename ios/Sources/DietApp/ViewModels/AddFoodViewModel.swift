@@ -59,7 +59,7 @@ public final class AddFoodViewModel: ObservableObject {
 
     // MARK: - Log Food
 
-    public func logFood(_ food: APIFood, mealType: FoodLogRecord.MealType) async {
+    public func logFood(_ food: APIFood, mealType: FoodLogRecord.MealType, quantity: Double = 1) async {
         let today = formatDate(Date())
 
         let request = CreateFoodLogRequest(
@@ -68,16 +68,16 @@ public final class AddFoodViewModel: ObservableObject {
             items: [
                 CreateFoodLogItem(
                     foodId: food.id,
-                    quantity: 1,
+                    quantity: quantity,
                     servingMultiplier: 1,
                     nutrition: CreateItemNutrition(
-                        calories: food.nutrition.calories,
-                        proteinG: food.nutrition.proteinG,
-                        carbsG: food.nutrition.carbsG,
-                        fatG: food.nutrition.fatG,
-                        fiberG: food.nutrition.fiberG,
-                        sugarG: food.nutrition.sugarG,
-                        sodiumMg: food.nutrition.sodiumMg
+                        calories: food.nutrition.calories * quantity,
+                        proteinG: food.nutrition.proteinG * quantity,
+                        carbsG: food.nutrition.carbsG * quantity,
+                        fatG: food.nutrition.fatG * quantity,
+                        fiberG: food.nutrition.fiberG.map { $0 * quantity },
+                        sugarG: food.nutrition.sugarG.map { $0 * quantity },
+                        sodiumMg: food.nutrition.sodiumMg.map { $0 * quantity }
                     ),
                     foodSnapshot: CreateFoodSnapshot(
                         name: food.name,

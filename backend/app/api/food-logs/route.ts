@@ -21,9 +21,14 @@ export async function GET(request: NextRequest) {
 
     await connectToDatabase();
 
-    const user = await User.findOne({ clerkId: userId, deletedAt: null });
+    let user = await User.findOne({ clerkId: userId, deletedAt: null });
     if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      // Auto-create user on first access
+      user = await User.create({
+        clerkId: userId,
+        email: `${userId}@placeholder.local`,
+        timezone: "UTC",
+      });
     }
 
     const query: Record<string, unknown> = {
@@ -74,9 +79,14 @@ export async function POST(request: Request) {
 
     await connectToDatabase();
 
-    const user = await User.findOne({ clerkId: userId, deletedAt: null });
+    let user = await User.findOne({ clerkId: userId, deletedAt: null });
     if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      // Auto-create user on first food log
+      user = await User.create({
+        clerkId: userId,
+        email: `${userId}@placeholder.local`,
+        timezone: "UTC",
+      });
     }
 
     // Calculate totals from items
@@ -123,8 +133,9 @@ export async function POST(request: Request) {
     return NextResponse.json(foodLog, { status: 201 });
   } catch (error) {
     console.error("Error creating food log:", error);
+    const message = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Internal server error", details: message },
       { status: 500 }
     );
   }

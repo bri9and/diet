@@ -20,14 +20,13 @@ public final class APIClient {
         self.baseURL = baseURL
         self.session = session
 
-        // Configure decoder
+        // Configure decoder - no automatic case conversion
+        // API returns camelCase keys that match Swift property names
         self.decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
         decoder.dateDecodingStrategy = .iso8601
 
         // Configure encoder
         self.encoder = JSONEncoder()
-        encoder.keyEncodingStrategy = .convertToSnakeCase
         encoder.dateEncodingStrategy = .iso8601
     }
 
@@ -124,6 +123,14 @@ public final class APIClient {
 
     private func perform<T: Decodable>(_ request: URLRequest) async throws -> T {
         let (data, response) = try await session.data(for: request)
+
+        // Log response for debugging
+        if let httpResponse = response as? HTTPURLResponse,
+           !(200...299).contains(httpResponse.statusCode) {
+            let bodyString = String(data: data, encoding: .utf8) ?? "no body"
+            print("API Error \(httpResponse.statusCode): \(bodyString)")
+        }
+
         try validateResponse(response)
 
         do {

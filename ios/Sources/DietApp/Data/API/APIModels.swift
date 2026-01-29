@@ -265,12 +265,16 @@ public struct PhotoAnalysisResponse: Decodable {
 
 public struct AnalyzedFoodItem: Decodable, Identifiable {
     public let name: String
-    public let quantity: Double
+    public var quantity: Double
     public let unit: String
     public let nutrition: AnalyzedNutrition
     public let confidence: Double
 
-    public var id: String { "\(name)-\(quantity)-\(unit)" }
+    public let id = UUID()
+
+    enum CodingKeys: String, CodingKey {
+        case name, quantity, unit, nutrition, confidence
+    }
 }
 
 public struct AnalyzedNutrition: Decodable {

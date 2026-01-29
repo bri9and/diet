@@ -18,9 +18,14 @@ export async function GET(request: NextRequest) {
 
     await connectToDatabase();
 
-    const user = await User.findOne({ clerkId: userId, deletedAt: null });
+    let user = await User.findOne({ clerkId: userId, deletedAt: null });
     if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      // Auto-create user on first access
+      user = await User.create({
+        clerkId: userId,
+        email: `${userId}@placeholder.local`,
+        timezone: "UTC",
+      });
     }
 
     // Get all food logs for the date

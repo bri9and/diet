@@ -166,21 +166,46 @@ public struct VoiceInputView: View {
             Text("Found:")
                 .font(.headline)
 
-            ForEach(viewModel.parsedItems) { item in
-                HStack {
+            ForEach(Array(viewModel.parsedItems.enumerated()), id: \.element.id) { index, item in
+                HStack(spacing: 12) {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(item.name)
                             .font(.body)
-                        Text("\(item.quantity, specifier: "%.1f") \(item.unit)")
+                        Text(item.unit)
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
 
                     Spacer()
 
-                    Text("\(Int(item.nutrition.calories)) cal")
+                    // Quantity controls
+                    HStack(spacing: 8) {
+                        Button {
+                            viewModel.decrementQuantity(at: index)
+                        } label: {
+                            Image(systemName: "minus.circle.fill")
+                                .font(.title2)
+                                .foregroundStyle(item.quantity > 0.5 ? .blue : .gray)
+                        }
+                        .disabled(item.quantity <= 0.5)
+
+                        Text(item.quantity.truncatingRemainder(dividingBy: 1) == 0 ? "\(Int(item.quantity))" : String(format: "%.1f", item.quantity))
+                            .font(.system(.body, design: .rounded, weight: .semibold))
+                            .frame(minWidth: 30)
+
+                        Button {
+                            viewModel.incrementQuantity(at: index)
+                        } label: {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.title2)
+                                .foregroundStyle(.blue)
+                        }
+                    }
+
+                    Text("\(Int(item.nutrition.calories * item.quantity)) cal")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
+                        .frame(minWidth: 50, alignment: .trailing)
                 }
                 .padding()
                 .background(Color.cardBackground)
@@ -258,11 +283,21 @@ public final class VoiceInputViewModel: ObservableObject {
     private let audioEngine = AVAudioEngine()
 
     public var totalCalories: Double {
-        parsedItems.reduce(0) { $0 + $1.nutrition.calories }
+        parsedItems.reduce(0) { $0 + ($1.nutrition.calories * $1.quantity) }
     }
 
     public init(foodService: FoodService) {
         self.foodService = foodService
+    }
+
+    public func incrementQuantity(at index: Int) {
+        guard index < parsedItems.count else { return }
+        parsedItems[index].quantity += 0.5
+    }
+
+    public func decrementQuantity(at index: Int) {
+        guard index < parsedItems.count, parsedItems[index].quantity > 0.5 else { return }
+        parsedItems[index].quantity -= 0.5
     }
 
     public func startListening() {
@@ -394,10 +429,10 @@ public final class VoiceInputViewModel: ObservableObject {
                 quantity: item.quantity,
                 servingMultiplier: 1,
                 nutrition: CreateItemNutrition(
-                    calories: item.nutrition.calories,
-                    proteinG: item.nutrition.proteinG,
-                    carbsG: item.nutrition.carbsG,
-                    fatG: item.nutrition.fatG
+                    calories: item.nutrition.calories * item.quantity,
+                    proteinG: item.nutrition.proteinG * item.quantity,
+                    carbsG: item.nutrition.carbsG * item.quantity,
+                    fatG: item.nutrition.fatG * item.quantity
                 ),
                 foodSnapshot: CreateFoodSnapshot(
                     name: item.name,

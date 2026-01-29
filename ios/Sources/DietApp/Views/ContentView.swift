@@ -8,6 +8,10 @@ import UIKit
 /// Serves as the root view after app initialization
 public struct ContentView: View {
 
+    // MARK: - Version
+
+    public static let appVersion = "1.003"
+
     // MARK: - Environment
 
     @EnvironmentObject private var appEnvironment: AppEnvironment
@@ -206,6 +210,13 @@ public struct ContentView: View {
                     Label(Tab.settings.title, systemImage: Tab.settings.icon)
                 }
                 .tag(Tab.settings)
+        }
+        .overlay(alignment: .bottomLeading) {
+            Text("v\(Self.appVersion)")
+                .font(.system(size: 10, weight: .medium, design: .monospaced))
+                .foregroundColor(.secondary.opacity(0.5))
+                .padding(.leading, 8)
+                .padding(.bottom, 52)
         }
     }
 }

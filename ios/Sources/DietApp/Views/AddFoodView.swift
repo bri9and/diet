@@ -19,6 +19,7 @@ public struct AddFoodView: View {
     @State private var showBarcodeResult = false
     @State private var scannedBarcode: String?
     @State private var showVoiceInput = false
+    @State private var selectedFood: SelectedFoodItem?
 
     let mealType: FoodLogRecord.MealType
     let onFoodAdded: () -> Void
@@ -120,6 +121,20 @@ public struct AddFoodView: View {
                 }
             }
             #endif
+            .sheet(item: $selectedFood) { item in
+                FoodQuantitySheet(
+                    food: item.food,
+                    mealType: mealType,
+                    onAdd: { quantity in
+                        Task {
+                            await viewModel.logFood(item.food, mealType: mealType, quantity: quantity)
+                            onFoodAdded()
+                            dismiss()
+                        }
+                    }
+                )
+                .presentationDetents([.medium])
+            }
         }
     }
 
@@ -321,11 +336,7 @@ public struct AddFoodView: View {
 
     private func searchResultRow(_ food: APIFood) -> some View {
         Button {
-            Task {
-                await viewModel.logFood(food, mealType: mealType)
-                onFoodAdded()
-                dismiss()
-            }
+            selectedFood = SelectedFoodItem(food: food)
         } label: {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
@@ -404,5 +415,164 @@ public struct AddFoodView: View {
         }
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+// MARK: - Selected Food Item Wrapper
+
+struct SelectedFoodItem: Identifiable {
+    let id = UUID()
+    let food: APIFood
+}
+
+// MARK: - Food Quantity Sheet
+
+struct FoodQuantitySheet: View {
+    let food: APIFood
+    let mealType: FoodLogRecord.MealType
+    let onAdd: (Double) -> Void
+
+    @Environment(\.dismiss) private var dismiss
+    @State private var quantity: Double = 1
+
+    private var adjustedCalories: Double {
+        food.nutrition.calories * quantity
+    }
+
+    private var adjustedProtein: Double {
+        food.nutrition.proteinG * quantity
+    }
+
+    private var adjustedCarbs: Double {
+        food.nutrition.carbsG * quantity
+    }
+
+    private var adjustedFat: Double {
+        food.nutrition.fatG * quantity
+    }
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 24) {
+                // Food info
+                VStack(spacing: 8) {
+                    Text(food.name)
+                        .font(.title2.weight(.semibold))
+                        .multilineTextAlignment(.center)
+
+                    if let brand = food.brand {
+                        Text(brand)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    if let serving = food.servingDescription {
+                        Text(serving)
+                            .font(.caption)
+                            .foregroundStyle(.tertiary)
+                    }
+                }
+                .padding(.top)
+
+                // Quantity selector
+                VStack(spacing: 16) {
+                    Text("Quantity")
+                        .font(.headline)
+
+                    HStack(spacing: 20) {
+                        Button {
+                            if quantity > 0.5 {
+                                quantity -= 0.5
+                            }
+                        } label: {
+                            Image(systemName: "minus.circle.fill")
+                                .font(.system(size: 44))
+                                .foregroundStyle(quantity > 0.5 ? .blue : .gray)
+                        }
+                        .disabled(quantity <= 0.5)
+
+                        Text(quantity.truncatingRemainder(dividingBy: 1) == 0 ? "\(Int(quantity))" : String(format: "%.1f", quantity))
+                            .font(.system(size: 48, weight: .bold, design: .rounded))
+                            .frame(minWidth: 80)
+
+                        Button {
+                            quantity += 0.5
+                        } label: {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.system(size: 44))
+                                .foregroundStyle(.blue)
+                        }
+                    }
+                }
+
+                // Nutrition preview
+                VStack(spacing: 12) {
+                    HStack {
+                        Text("Nutrition")
+                            .font(.headline)
+                        Spacer()
+                    }
+
+                    HStack(spacing: 16) {
+                        NutritionPill(label: "Cal", value: "\(Int(adjustedCalories))", color: .green)
+                        NutritionPill(label: "P", value: "\(Int(adjustedProtein))g", color: .blue)
+                        NutritionPill(label: "C", value: "\(Int(adjustedCarbs))g", color: .orange)
+                        NutritionPill(label: "F", value: "\(Int(adjustedFat))g", color: .purple)
+                    }
+                }
+                .padding()
+                .background(Color.cardBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+
+                Spacer()
+
+                // Add button
+                Button {
+                    onAdd(quantity)
+                    dismiss()
+                } label: {
+                    Text("Add to \(mealType.displayName)")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(Color.green)
+                        .foregroundStyle(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+            }
+            .padding()
+            .navigationTitle("Add Food")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Nutrition Pill
+
+struct NutritionPill: View {
+    let label: String
+    let value: String
+    let color: Color
+
+    var body: some View {
+        VStack(spacing: 4) {
+            Text(value)
+                .font(.system(size: 16, weight: .semibold, design: .rounded))
+
+            Text(label)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 12)
+        .background(color.opacity(0.15))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }
