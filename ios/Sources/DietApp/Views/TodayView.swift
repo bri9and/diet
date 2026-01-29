@@ -442,13 +442,99 @@ struct MealCard: View {
     private var itemsList: some View {
         VStack(spacing: 0) {
             ForEach(logs) { log in
-                ForEach(log.items) { item in
-                    FoodItemRow(item: item)
+                SwipeToDeleteRow(onDelete: { onDelete(log) }) {
+                    VStack(spacing: 0) {
+                        ForEach(log.items) { item in
+                            FoodItemRow(item: item)
 
-                    if item.id != log.items.last?.id {
-                        Divider()
-                            .padding(.leading, 56)
+                            if item.id != log.items.last?.id {
+                                Divider()
+                                    .padding(.leading, 56)
+                            }
+                        }
                     }
+                }
+
+                if log.id != logs.last?.id {
+                    Divider()
+                        .padding(.horizontal, 16)
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Swipe To Delete Row
+
+struct SwipeToDeleteRow<Content: View>: View {
+    let onDelete: () -> Void
+    let content: Content
+
+    @State private var offset: CGFloat = 0
+    @State private var showingDeleteConfirmation = false
+
+    private let deleteThreshold: CGFloat = -80
+
+    init(onDelete: @escaping () -> Void, @ViewBuilder content: () -> Content) {
+        self.onDelete = onDelete
+        self.content = content()
+    }
+
+    var body: some View {
+        ZStack(alignment: .trailing) {
+            // Delete button background
+            HStack {
+                Spacer()
+                Button {
+                    showingDeleteConfirmation = true
+                } label: {
+                    Image(systemName: "trash.fill")
+                        .font(.title3)
+                        .foregroundColor(.white)
+                        .frame(width: 60)
+                        .frame(maxHeight: .infinity)
+                        .background(Color.red)
+                }
+            }
+
+            // Main content
+            content
+                .background(Color.cardBackground)
+                .offset(x: offset)
+                .gesture(
+                    DragGesture()
+                        .onChanged { value in
+                            if value.translation.width < 0 {
+                                offset = max(value.translation.width, deleteThreshold)
+                            }
+                        }
+                        .onEnded { value in
+                            withAnimation(.spring(response: 0.3)) {
+                                if value.translation.width < deleteThreshold / 2 {
+                                    offset = deleteThreshold
+                                } else {
+                                    offset = 0
+                                }
+                            }
+                        }
+                )
+                .onTapGesture {
+                    if offset != 0 {
+                        withAnimation(.spring(response: 0.3)) {
+                            offset = 0
+                        }
+                    }
+                }
+        }
+        .confirmationDialog("Delete this food entry?", isPresented: $showingDeleteConfirmation, titleVisibility: .visible) {
+            Button("Delete", role: .destructive) {
+                withAnimation {
+                    onDelete()
+                }
+            }
+            Button("Cancel", role: .cancel) {
+                withAnimation(.spring(response: 0.3)) {
+                    offset = 0
                 }
             }
         }
