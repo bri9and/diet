@@ -12,6 +12,7 @@ public struct TodayView: View {
     @EnvironmentObject private var environment: AppEnvironment
     @State private var showQuickAdd = false
     @State private var showMicronutrients = false
+    @State private var showMealTypeSelection = false
 
     // MARK: - Initialization
 
@@ -41,21 +42,6 @@ public struct TodayView: View {
                 .background(Color.appBackground)
             }
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    HStack(spacing: 10) {
-                        Image("Logo")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 34, height: 34)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-
-                        Text("Fuelvio")
-                            .font(.title3.weight(.bold))
-                            .foregroundColor(.primary)
-                    }
-                }
-            }
             .refreshable {
                 await viewModel.loadTodayData()
             }
@@ -208,7 +194,7 @@ public struct TodayView: View {
 
     private var quickActionsBar: some View {
         Button {
-            viewModel.showAddFood(for: suggestedMealType)
+            showMealTypeSelection = true
         } label: {
             HStack {
                 Image(systemName: "plus.circle.fill")
@@ -230,15 +216,20 @@ public struct TodayView: View {
             .shadow(color: .green.opacity(0.3), radius: 8, y: 4)
         }
         .buttonStyle(.plain)
-    }
-
-    private var suggestedMealType: FoodLogRecord.MealType {
-        let hour = Calendar.current.component(.hour, from: Date())
-        switch hour {
-        case 5..<11: return .breakfast
-        case 11..<15: return .lunch
-        case 15..<21: return .dinner
-        default: return .snack
+        .confirmationDialog("Select Meal Type", isPresented: $showMealTypeSelection) {
+            Button("Breakfast") {
+                viewModel.showAddFood(for: .breakfast)
+            }
+            Button("Lunch") {
+                viewModel.showAddFood(for: .lunch)
+            }
+            Button("Dinner") {
+                viewModel.showAddFood(for: .dinner)
+            }
+            Button("Snack") {
+                viewModel.showAddFood(for: .snack)
+            }
+            Button("Cancel", role: .cancel) {}
         }
     }
 

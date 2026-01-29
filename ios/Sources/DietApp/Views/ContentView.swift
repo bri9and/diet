@@ -10,7 +10,7 @@ public struct ContentView: View {
 
     // MARK: - Version
 
-    public static let appVersion = "1.014"
+    public static let appVersion = "1.015"
 
     // MARK: - Environment
 
