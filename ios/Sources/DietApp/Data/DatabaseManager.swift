@@ -36,14 +36,18 @@ public final class DatabaseManager {
         // Create database file path
         let dbURL = appSupport.appendingPathComponent("dietapp.sqlite")
 
-        // Create database queue
-        dbQueue = try DatabaseQueue(path: dbURL.path)
-
         // Configure database
-        try await dbQueue?.write { db in
+        var config = Configuration()
+        config.prepareDatabase { db in
             // Enable foreign key constraints
             try db.execute(sql: "PRAGMA foreign_keys = ON")
-            // Enable WAL mode for better concurrency
+        }
+
+        // Create database queue with WAL mode (set outside of transaction)
+        dbQueue = try DatabaseQueue(path: dbURL.path, configuration: config)
+
+        // Enable WAL mode - must be done outside of a transaction
+        try await dbQueue?.writeWithoutTransaction { db in
             try db.execute(sql: "PRAGMA journal_mode = WAL")
         }
 
