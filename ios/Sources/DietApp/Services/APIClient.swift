@@ -80,6 +80,28 @@ public final class APIClient {
         return try await perform(request)
     }
 
+    /// Perform a PATCH request with a body
+    public func patch<T: Decodable, B: Encodable>(
+        _ path: String,
+        body: B
+    ) async throws -> T {
+        var request = try await buildRequest(method: .patch, path: path)
+        request.httpBody = try encoder.encode(body)
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        return try await perform(request)
+    }
+
+    /// Perform a PATCH request with a dictionary body
+    public func patch<T: Decodable>(
+        _ path: String,
+        body: [String: Any]
+    ) async throws -> T {
+        var request = try await buildRequest(method: .patch, path: path)
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        return try await perform(request)
+    }
+
     /// Perform a DELETE request
     public func delete<T: Decodable>(_ path: String) async throws -> T {
         let request = try await buildRequest(method: .delete, path: path)

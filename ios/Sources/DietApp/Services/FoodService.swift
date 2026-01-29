@@ -45,6 +45,43 @@ public final class FoodService {
         try await apiClient.delete("/food-logs/\(id)")
     }
 
+    /// Remove a specific item from a food log
+    /// If it's the last item, deletes the entire log
+    public func removeItemFromLog(logId: String, itemId: String, allItems: [APIFoodLogItem]) async throws {
+        let remainingItems = allItems.filter { $0.id != itemId }
+
+        if remainingItems.isEmpty {
+            // Delete the whole log if no items remain
+            try await deleteFoodLog(id: logId)
+        } else {
+            // Update the log with remaining items
+            let itemsPayload = remainingItems.map { item in
+                [
+                    "_id": item.id,
+                    "foodId": item.foodId as Any,
+                    "quantity": item.quantity,
+                    "servingMultiplier": item.servingMultiplier,
+                    "nutrition": [
+                        "calories": item.nutrition.calories,
+                        "proteinG": item.nutrition.proteinG,
+                        "carbsG": item.nutrition.carbsG,
+                        "fatG": item.nutrition.fatG,
+                        "fiberG": item.nutrition.fiberG as Any,
+                        "sugarG": item.nutrition.sugarG as Any,
+                        "sodiumMg": item.nutrition.sodiumMg as Any
+                    ],
+                    "foodSnapshot": [
+                        "name": item.foodSnapshot.name,
+                        "brand": item.foodSnapshot.brand as Any,
+                        "servingDescription": item.foodSnapshot.servingDescription as Any
+                    ]
+                ] as [String: Any]
+            }
+
+            let _: APIFoodLog = try await apiClient.patch("/food-logs/\(logId)", body: ["items": itemsPayload])
+        }
+    }
+
     // MARK: - Food Search
 
     /// Search foods database

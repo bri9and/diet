@@ -115,6 +115,32 @@ public final class TodayViewModel: ObservableObject {
         }
     }
 
+    /// Delete a specific item from a food log
+    public func deleteItem(_ item: APIFoodLogItem, from log: APIFoodLog) async {
+        do {
+            try await foodService.removeItemFromLog(logId: log.id, itemId: item.id, allItems: log.items)
+
+            // Update local state
+            if log.items.count == 1 {
+                // Last item - remove entire log
+                apiLogs.removeAll { $0.id == log.id }
+            } else {
+                // Update the log's items
+                if let index = apiLogs.firstIndex(where: { $0.id == log.id }) {
+                    // Reload from API to get updated totals
+                    await loadTodayData()
+                    return
+                }
+            }
+
+            // Recalculate nutrition
+            nutrition = calculateNutrition(from: apiLogs)
+        } catch {
+            self.error = error
+            print("Failed to delete item: \(error)")
+        }
+    }
+
     // MARK: - Computed Properties
 
     /// Get logs for a specific meal type

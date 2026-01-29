@@ -235,9 +235,9 @@ public struct TodayView: View {
                     onAdd: {
                         viewModel.showAddFood(for: mealType)
                     },
-                    onDelete: { log in
+                    onDeleteItem: { item, log in
                         Task {
-                            await viewModel.deleteLog(log)
+                            await viewModel.deleteItem(item, from: log)
                         }
                     }
                 )
@@ -350,7 +350,7 @@ struct MealCard: View {
     let logs: [APIFoodLog]
     let calories: Double
     let onAdd: () -> Void
-    let onDelete: (APIFoodLog) -> Void
+    let onDeleteItem: (APIFoodLogItem, APIFoodLog) -> Void
 
     @State private var isExpanded = true
 
@@ -442,22 +442,15 @@ struct MealCard: View {
     private var itemsList: some View {
         VStack(spacing: 0) {
             ForEach(logs) { log in
-                SwipeToDeleteRow(onDelete: { onDelete(log) }) {
-                    VStack(spacing: 0) {
-                        ForEach(log.items) { item in
-                            FoodItemRow(item: item)
-
-                            if item.id != log.items.last?.id {
-                                Divider()
-                                    .padding(.leading, 56)
-                            }
-                        }
+                ForEach(log.items) { item in
+                    SwipeToDeleteRow(onDelete: { onDeleteItem(item, log) }) {
+                        FoodItemRow(item: item)
                     }
-                }
 
-                if log.id != logs.last?.id {
-                    Divider()
-                        .padding(.horizontal, 16)
+                    if item.id != log.items.last?.id || log.id != logs.last?.id {
+                        Divider()
+                            .padding(.leading, 56)
+                    }
                 }
             }
         }
